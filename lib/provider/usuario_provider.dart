@@ -97,7 +97,9 @@ class UsuarioProvider extends ChangeNotifier {
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
+      // ignore: avoid_print
       print('Error signing out: $e');
+      // ignore: use_rethrow_when_possible
       throw e;
     }
   }

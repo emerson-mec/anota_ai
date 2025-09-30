@@ -8,10 +8,12 @@ class Usuario {
   final String? photoURL;
   final bool isAssinante;
   final Timestamp? dataAssinatura;
+  // final String? prioridadeListaId;
   final String idColaborador;
 
   Usuario({
     this.photoURL,
+    // this.prioridadeListaId,
     required this.uid,
     required this.nome,
     required this.email,
@@ -24,6 +26,7 @@ class Usuario {
     return Usuario(
       uid: json['uid'] as String,
       nome: json['nome'] as String,
+      // prioridadeListaId: json['prioridadeListaId'] as String?,
       email: json['email'] as String,
       isAssinante: json['isAssinante'] as bool,
       photoURL: json['photoURL'] as String? ,
@@ -41,6 +44,7 @@ class Usuario {
       'photoURL': photoURL,
       'dataAssinatura': dataAssinatura,
       'idColaborador': idColaborador,
+      // 'prioridadeListaId': prioridadeListaId,
     };
   }
 }

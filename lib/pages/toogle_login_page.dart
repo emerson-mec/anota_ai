@@ -20,7 +20,7 @@ class _ToogleGoogleLoginPageState extends State<ToogleGoogleLoginPage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-     
+
         if (snapshot.hasData) {
           return HomePage(); // usuário logado
         } else {
@@ -69,13 +69,14 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
               style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
             ),
             Text(
-              "App de anotações de compras simples e rápido!",
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
+              "App de anotações de compras.\nSimples, rápido e compartilhado!",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
             ),
             SizedBox(height: 30),
-            TextButton.icon(
+            OutlinedButton.icon(
               onPressed: () => entrarComGoogle(),
-              label: Text("Entrar com Google"),
+              label: Text("Entrar"),
               icon: Icon(Icons.login),
             ),
           ],

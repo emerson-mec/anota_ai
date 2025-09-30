@@ -1,3 +1,5 @@
+import 'package:anota_ai/pages/listas_page.dart';
+import 'package:anota_ai/utils/navegacao_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -40,10 +42,17 @@ class DrawerCUSTOM extends StatelessWidget {
                   ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
+            leading: const Icon(Icons.list_alt_rounded),
+            title: const Text('Gerenciar Listas'),
             onTap: () {
-              Navigator.pop(context);
+              NavegacaoCUSTOM.push(context, ListasPAGE());
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_add),
+            title: const Text('Convidar Colaborador'),
+            onTap: () {
+         
             },
           ),
 

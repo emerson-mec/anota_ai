@@ -1,10 +1,11 @@
 import 'package:anota_ai/firebase_options.dart';
+import 'package:anota_ai/provider/lista_itens_provider.dart';
 import 'package:anota_ai/provider/usuario_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'pages/toogle_google_login_page.dart';
+import 'pages/toogle_login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => UsuarioProvider()),
+        ChangeNotifierProvider(create: (context) => ListaItensProvider()),
       ],
       child: MaterialApp(
         title: 'Anota Aí',

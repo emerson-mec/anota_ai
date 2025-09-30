@@ -8,4 +8,5 @@ class NavegacaoCUSTOM {
   static void pushReplacement(BuildContext context, Widget pagina) {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => pagina));
   }
+ 
 }
