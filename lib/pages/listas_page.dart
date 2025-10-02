@@ -16,6 +16,7 @@ class ListasPAGE extends StatefulWidget {
 class _ListasPAGEState extends State<ListasPAGE> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nomeListaController = TextEditingController();
+  final TextEditingController _nomeItemController = TextEditingController();
   final FocusNode _nomeFocusNode = FocusNode();
   bool _isSaving = false;
 
@@ -71,9 +72,10 @@ class _ListasPAGEState extends State<ListasPAGE> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Prioridade"),
+                              Text("PRIORIDADE: "),
+
                               SizedBox(
-                                width: 95,
+                                width: 110,
                                 child: SwitchListTile(
                                   value: lista.prioridade,
                                   onChanged: (value) async {
@@ -91,9 +93,15 @@ class _ListasPAGEState extends State<ListasPAGE> {
                           ),
                           Wrap(
                             children: [
-                              ...lista.itens.map(
-                                (e) => Chip(label: Text(e.nome)),
-                              ),
+                              ...lista.itens.map((item) {
+                                return Chip(
+                                  label: Text(item.nome),
+                                  onDeleted: () {
+                                    _updateItemBottomSheet(lista, item);
+                                  },
+                                  deleteIcon: Icon(Icons.edit),
+                                );
+                              }),
                             ],
                           ),
                         ],
@@ -316,6 +324,126 @@ class _ListasPAGEState extends State<ListasPAGE> {
                       onPressed: () {
                         Navigator.pop(context);
                         _excluirLista(context, lista);
+                      },
+                      child: Text(
+                        'Excluir',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _updateItemBottomSheet(ListaMODEL lista, ItemMODEL item) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) {
+        // Solicita o foco após o build
+        Future.delayed(const Duration(milliseconds: 70), () {
+          _nomeFocusNode.requestFocus();
+        });
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  initialValue: item.nome,
+                  onChanged: (value) {
+                    _nomeItemController.text = value;
+                  },
+                  focusNode: _nomeFocusNode,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    label: Text("Novo nome"),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Informe o nome do item';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isSaving
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
+                                try {
+                                  // setState(() => _isSaving = true);
+                                  item.nome = _nomeItemController.text;
+
+                                  // print(lista.nome);
+                                  // print(item.nome);
+                                  await Provider.of<ListaItensProvider>(
+                                    context,
+                                    listen: false,
+                                  ).updateItem(lista, item);
+
+                                  if (mounted) {
+                                    Navigator.of(ctx).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Item alterado com sucesso',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao atualizar item: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _isSaving = false);
+                                  }
+                                }
+                              },
+                        child: const Text('Salvar'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: _isSaving
+                          ? null
+                          : () => Navigator.of(ctx).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await Provider.of<ListaItensProvider>(
+                          context,
+                          listen: false,
+                        ).deletarItem(lista, item);
+
+                        Navigator.pop(context);
+                        //TODO Excluir item
                       },
                       child: Text(
                         'Excluir',

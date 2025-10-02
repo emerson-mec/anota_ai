@@ -69,10 +69,12 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('Para começar crie uma lista'),
-                          TextButton(onPressed: () {
-                             _addListBottomSheet();
-                            
-                          }, child: Text("+ CRIAR LISTA"))
+                          TextButton(
+                            onPressed: () {
+                              _addListBottomSheet();
+                            },
+                            child: Text("+ CRIAR LISTA"),
+                          ),
                         ],
                       ),
                     );
@@ -118,13 +120,10 @@ class _HomePageState extends State<HomePage> {
                                         selectedListaNome = value;
                                         listaSelecionada = selectedLista;
                                       });
-
-                                   
-
                                       print(listaSelecionada.nome);
                                     },
                                   ),
-                                  IconButton.outlined(
+                                  IconButton(
                                     onPressed: () {
                                       _addListBottomSheet();
                                     },
@@ -229,10 +228,17 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                   Divider(color: Colors.grey),
-                                  Center(
-                                    child: Text(
-                                      'Itens da lista "$selectedListaNome"',
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Itens da lista "$selectedListaNome"',
+                                      ),
+                                     InkWell(onTap: () {
+                                        _addItemBottomSheet();
+                                       
+                                     }, child: Icon(Icons.add))
+                                    ],
                                   ),
                                   SizedBox(
                                     height: 220,
@@ -440,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                                 if (!_formKey.currentState!.validate()) return;
 
                                 try {
-                                  var novoItem = ItemModel(
+                                  var novoItem = ItemMODEL(
                                     idLista: listaSelecionada.id,
                                     id: '123',
                                     nome: _nomeItemController.text,

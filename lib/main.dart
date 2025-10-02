@@ -24,7 +24,15 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Anota Aí',
-        theme: ThemeData(primarySwatch: Colors.green, useMaterial3: false),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          useMaterial3: true,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+          ),
+        ),
+        debugShowCheckedModeBanner: false,
         home: const ToogleGoogleLoginPage(),
       ),
     );

@@ -135,7 +135,7 @@ class ListaItensProvider extends ChangeNotifier {
 
         final itens = itensSnapshot.docs.map((itemDoc) {
           final data = itemDoc.data();
-          return ItemModel.fromMap(data);
+          return ItemMODEL.fromMap(data);
         }).toList();
 
         final listaData = doc.data();
@@ -168,6 +168,27 @@ class ListaItensProvider extends ChangeNotifier {
     } catch (e) {
       if (kDebugMode) {
         print('Erro ao deletar lista do Firestore: $e');
+      }
+    }
+  }
+
+  Future<void> deletarItem(ListaMODEL lista, ItemMODEL item) async {
+    try {
+      if (_usuario.currentUser != null) {
+        await _firestore
+            .collection('usuarios')
+            .doc(_usuario.currentUser!.uid)
+            .collection('listas')
+            .doc(lista.id)
+            .collection('itens')
+            .doc(item.id)
+            .delete();
+
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao atualizar lista no Firestore: $e');
       }
     }
   }
@@ -222,21 +243,50 @@ class ListaItensProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> mudarPrioridade( {required String idLista, required bool isPrioridade })async {
-   await _firestore
+  Future<void> updateItem(ListaMODEL lista, ItemMODEL item) async {
+    try {
+      if (_usuario.currentUser != null) {
+        print(lista.nome);
+        print(item.nome);
+
+        await _firestore
             .collection('usuarios')
             .doc(_usuario.currentUser!.uid)
             .collection('listas')
-            .doc(idLista)
-            .update({
-              'prioridade': isPrioridade
-            });
+            .doc(lista.id)
+            .collection('itens')
+            .doc(item.id)
+            .update({"nome": item.nome});
 
-            notifyListeners();
+        int index = _listaItens.indexWhere((item) => item.id == lista.id);
+        if (index != -1) {
+          _listaItens[index] = lista;
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao atualizar lista no Firestore: $e');
+      }
+    }
+  }
+
+  Future<void> mudarPrioridade({
+    required String idLista,
+    required bool isPrioridade,
+  }) async {
+    await _firestore
+        .collection('usuarios')
+        .doc(_usuario.currentUser!.uid)
+        .collection('listas')
+        .doc(idLista)
+        .update({'prioridade': isPrioridade});
+
+    notifyListeners();
   }
 
   Future<void> addItem({
-    required ItemModel novoItem,
+    required ItemMODEL novoItem,
     required String idLista,
   }) async {
     try {

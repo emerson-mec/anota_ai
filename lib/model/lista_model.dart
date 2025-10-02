@@ -8,9 +8,8 @@ class ListaMODEL {
   String id;
   String nome;
   Timestamp dataCriacao = Timestamp.now();
-  List<ItemModel> itens;
+  List<ItemMODEL> itens;
   bool prioridade;
-  final String? emoticonUnicode;
   final String cor;
 
   ListaMODEL({
@@ -19,7 +18,6 @@ class ListaMODEL {
     required this.dataCriacao,
     this.prioridade = true,
     this.itens = const [],
-    this.emoticonUnicode,
     this.cor = '808080',
   });
 
@@ -31,10 +29,9 @@ class ListaMODEL {
       dataCriacao: json['dataCriacao'] as Timestamp,
       itens:
           (json['itens'] as List<dynamic>?)
-              ?.map((item) => ItemModel.fromMap(item as Map<String, dynamic>))
+              ?.map((item) => ItemMODEL.fromMap(item as Map<String, dynamic>))
               .toList() ??
           [],
-      emoticonUnicode: null,
       cor: json['cor'] ?? '808080',
     );
   }
@@ -45,24 +42,22 @@ class ListaMODEL {
       'nome': nome,
       'dataCriacao': dataCriacao,
       'prioridade': prioridade,
-      'emoticonUnicode': emoticonUnicode,
       'cor' : cor,
     };
   }
 }
 
-class ItemModel {
+class ItemMODEL {
   final String id;
   final String idLista;
-  final String nome;
+   String nome;
   final Timestamp dataCriacao;
   final int quantidade;
   final bool noCarrinho;
   final bool intencaoCompra;
   final String cor;
-  final String emoticonUnicode;
 
-  ItemModel({
+  ItemMODEL({
     this.quantidade = 1,
     required this.idLista,
     required this.id,
@@ -71,7 +66,6 @@ class ItemModel {
     this.noCarrinho = false,
     this.intencaoCompra = false,
     this.cor = '808080',
-    this.emoticonUnicode = '',
   });
 
   // 🔄 Converter para Map (Firestore)
@@ -85,13 +79,12 @@ class ItemModel {
       'noCarrinho': noCarrinho,
       'intencaoCompra': intencaoCompra,
       'cor': cor,
-      'emoticonUnicode': emoticonUnicode,
     };
   }
 
   // 🔄 Converter de Map (Firestore → Dart)
-  factory ItemModel.fromMap(Map<String, dynamic> map) {
-    return ItemModel(
+  factory ItemMODEL.fromMap(Map<String, dynamic> map) {
+    return ItemMODEL(
       id: map['id'] ?? '',
       idLista: map['idLista'] ?? '',
       quantidade: map['quantidade'],
@@ -100,7 +93,6 @@ class ItemModel {
       noCarrinho: map['noCarrinho'],
       intencaoCompra: map['intencaoCompra'],
       cor: map['cor'] ?? '808080',
-      emoticonUnicode: map['emoticonUnicode'] ?? '',
     );
   }
 }
