@@ -443,7 +443,7 @@ class _ListasPAGEState extends State<ListasPAGE> {
                         ).deletarItem(lista, item);
 
                         Navigator.pop(context);
-                        //TODO Excluir item
+                        
                       },
                       child: Text(
                         'Excluir',
