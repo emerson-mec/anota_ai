@@ -273,7 +273,7 @@ class ListaItensProvider extends ChangeNotifier {
 
   Future<void> mudarPrioridade({
     required String idLista,
-    required bool isPrioridade,
+    required bool isPrioridade
   }) async {
     await _firestore
         .collection('usuarios')

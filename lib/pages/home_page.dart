@@ -234,10 +234,12 @@ class _HomePageState extends State<HomePage> {
                                       Text(
                                         'Itens da lista "$selectedListaNome"',
                                       ),
-                                     InkWell(onTap: () {
-                                        _addItemBottomSheet();
-                                       
-                                     }, child: Icon(Icons.add))
+                                      InkWell(
+                                        onTap: () {
+                                          _addItemBottomSheet();
+                                        },
+                                        child: Icon(Icons.add),
+                                      ),
                                     ],
                                   ),
                                   SizedBox(

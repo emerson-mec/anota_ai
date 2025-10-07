@@ -1,5 +1,6 @@
 import 'package:anota_ai/pages/listas_page.dart';
 import 'package:anota_ai/utils/navegacao_custom.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,12 +20,28 @@ class DrawerCUSTOM extends StatelessWidget {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: NetworkImage(
-                          UsuarioProvider.usuarioAtual()!.photoURL ?? '',
+                      SizedBox(
+                        width:
+                            70, // Defina a largura e altura iguais para um círculo perfeito
+                        height: 70,
+                     
+                        child: CachedNetworkImage(
+                          imageUrl: UsuarioProvider.usuarioAtual()!.photoURL
+                              .toString(),
+                          placeholder: (context, url) =>
+                              CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
                         ),
                       ),
+                     
+
+                      // CircleAvatar(
+                      //   radius: 30,
+                      //   backgroundImage: NetworkImage(
+                      //     UsuarioProvider.usuarioAtual()!.photoURL ?? '',
+                      //   ),
+                      // ),
                       Text(
                         UsuarioProvider.usuarioAtual()!.displayName ?? '',
                         style: TextStyle(color: Colors.white, fontSize: 20),
@@ -51,9 +68,7 @@ class DrawerCUSTOM extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.person_add),
             title: const Text('Convidar Colaborador'),
-            onTap: () {
-         
-            },
+            onTap: () {},
           ),
 
           ListTile(
