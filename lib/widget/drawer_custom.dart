@@ -15,7 +15,7 @@ class DrawerCUSTOM extends StatelessWidget {
       child: ListView(
         children: <Widget>[
           DrawerHeader(
-            decoration: BoxDecoration(color: Colors.green),
+            decoration: BoxDecoration(color: Colors.blueAccent),
             child: UsuarioProvider.usuarioAtual() != null
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,11 +65,11 @@ class DrawerCUSTOM extends StatelessWidget {
               NavegacaoCUSTOM.push(context, ListasPAGE());
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.person_add),
-            title: const Text('Convidar Colaborador'),
-            onTap: () {},
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.person_add),
+          //   title: const Text('Convidar Colaborador'),
+          //   onTap: () {},
+          // ),
 
           ListTile(
             leading: const Icon(Icons.logout),

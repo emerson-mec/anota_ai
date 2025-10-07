@@ -63,13 +63,14 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.note_alt_outlined, size: 100, color: Colors.green),
+            // Icon(Icons.note_alt_outlined, size: 100, color: Colors.green),
+            Image.asset('assets/logo/logo.png', width: 100, height: 100),
             Text(
               "ANOTA AÍ",
               style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
             ),
             Text(
-              "App de anotações de compras.\nSimples, rápido e compartilhado!",
+              "App de anotações de compras.\nSimples, rápido e fácil!",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
             ),

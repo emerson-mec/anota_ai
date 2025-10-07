@@ -311,4 +311,148 @@ class ListaItensProvider extends ChangeNotifier {
       }
     }
   }
+
+  Future<void> atualizarStatusItem({
+    required String idLista,
+    required String idItem,
+    bool? noCarrinho,
+    bool? intencaoCompra,
+  }) async {
+    try {
+      if (_usuario.currentUser != null) {
+        Map<String, dynamic> updateData = {};
+        
+        if (noCarrinho != null) {
+          updateData['noCarrinho'] = noCarrinho;
+        }
+        if (intencaoCompra != null) {
+          updateData['intencaoCompra'] = intencaoCompra;
+        }
+
+        await _firestore
+            .collection('usuarios')
+            .doc(_usuario.currentUser!.uid)
+            .collection('listas')
+            .doc(idLista)
+            .collection('itens')
+            .doc(idItem)
+            .update(updateData);
+
+        // Atualizar o item na lista local
+        final listaIndex = _listaItens.indexWhere((lista) => lista.id == idLista);
+        if (listaIndex != -1) {
+          final itemIndex = _listaItens[listaIndex].itens.indexWhere((item) => item.id == idItem);
+          if (itemIndex != -1) {
+            if (noCarrinho != null) {
+              _listaItens[listaIndex].itens[itemIndex].noCarrinho = noCarrinho;
+            }
+            if (intencaoCompra != null) {
+              _listaItens[listaIndex].itens[itemIndex].intencaoCompra = intencaoCompra;
+            }
+          }
+        }
+
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao atualizar status do item: $e');
+      }
+    }
+  }
+
+  Future<void> removerItemDaSecao({
+    required String idLista,
+    required String idItem,
+  }) async {
+    try {
+      if (_usuario.currentUser != null) {
+        await _firestore
+            .collection('usuarios')
+            .doc(_usuario.currentUser!.uid)
+            .collection('listas')
+            .doc(idLista)
+            .collection('itens')
+            .doc(idItem)
+            .update({
+          'noCarrinho': false,
+          'intencaoCompra': false,
+        });
+
+        // Atualizar o item na lista local
+        final listaIndex = _listaItens.indexWhere((lista) => lista.id == idLista);
+        if (listaIndex != -1) {
+          final itemIndex = _listaItens[listaIndex].itens.indexWhere((item) => item.id == idItem);
+          if (itemIndex != -1) {
+            _listaItens[listaIndex].itens[itemIndex].noCarrinho = false;
+            _listaItens[listaIndex].itens[itemIndex].intencaoCompra = false;
+          }
+        }
+
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao remover item da seção: $e');
+      }
+    }
+  }
+
+  Future<void> resetarLista({
+    required String idLista,
+  }) async {
+    try {
+      if (_usuario.currentUser != null) {
+        // Buscar todos os itens da lista que estão em intenção de compra ou no carrinho
+        final itensSnapshot = await _firestore
+            .collection('usuarios')
+            .doc(_usuario.currentUser!.uid)
+            .collection('listas')
+            .doc(idLista)
+            .collection('itens')
+            .where('noCarrinho', isEqualTo: true)
+            .get();
+
+        final itensIntencaoSnapshot = await _firestore
+            .collection('usuarios')
+            .doc(_usuario.currentUser!.uid)
+            .collection('listas')
+            .doc(idLista)
+            .collection('itens')
+            .where('intencaoCompra', isEqualTo: true)
+            .get();
+
+        // Resetar todos os itens no carrinho
+        for (var doc in itensSnapshot.docs) {
+          await doc.reference.update({
+            'noCarrinho': false,
+            'intencaoCompra': false,
+          });
+        }
+
+        // Resetar todos os itens em intenção de compra
+        for (var doc in itensIntencaoSnapshot.docs) {
+          await doc.reference.update({
+            'noCarrinho': false,
+            'intencaoCompra': false,
+          });
+        }
+
+        // Atualizar a lista local
+        final listaIndex = _listaItens.indexWhere((lista) => lista.id == idLista);
+        if (listaIndex != -1) {
+          for (var item in _listaItens[listaIndex].itens) {
+            item.noCarrinho = false;
+            item.intencaoCompra = false;
+          }
+        }
+
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erro ao resetar lista: $e');
+      }
+    }
+  }
 }

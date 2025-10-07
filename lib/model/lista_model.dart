@@ -53,8 +53,8 @@ class ItemMODEL {
    String nome;
   final Timestamp dataCriacao;
   final int quantidade;
-  final bool noCarrinho;
-  final bool intencaoCompra;
+  bool noCarrinho;
+  bool intencaoCompra;
   final String cor;
 
   ItemMODEL({

@@ -42,10 +42,13 @@ class _HomePageState extends State<HomePage> {
           ),
           actions: [
             IconButton(
-              tooltip: '',
-              icon: const Icon(Icons.stacked_bar_chart),
-              onPressed: () {},
+              tooltip: 'Resetar Lista',
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                _resetarLista();
+              },
             ),
+            
           ],
         ),
         drawer: DrawerCUSTOM(),
@@ -98,38 +101,78 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              height: 40,
-                              color: Colors.green[100],
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('LISTA: '),
-                                  SizedBox(width: 8),
-                                  DropdownButton<String>(
-                                    value: selectedListaNome,
-                                    items: listas.map<DropdownMenuItem<String>>(
-                                      (lista) {
-                                        return DropdownMenuItem<String>(
-                                          value: lista.nome,
-                                          child: Text(lista.nome),
-                                        );
-                                      },
-                                    ).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedListaNome = value;
-                                        listaSelecionada = selectedLista;
-                                      });
-                                      print(listaSelecionada.nome);
-                                    },
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      _addListBottomSheet();
-                                    },
-                                    icon: Icon(Icons.add),
+                              margin: const EdgeInsets.only(top: 8, left: 8, right: 8,bottom: 5),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.blue[50]!, Colors.blue[100]!],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.blue[200]!, width: 1),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blue[100]!,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.list_alt, color: Colors.blue[700], size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'LISTA:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue[700],
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: DropdownButton<String>(
+                                        value: selectedListaNome,
+                                        isExpanded: true,
+                                        underline: const SizedBox(),
+                                        style: TextStyle(
+                                          color: Colors.blue[700],
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 16,
+                                        ),
+                                        items: listas.map<DropdownMenuItem<String>>(
+                                          (lista) {
+                                            return DropdownMenuItem<String>(
+                                              value: lista.nome,
+                                              child: Text(
+                                                lista.nome,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            );
+                                          },
+                                        ).toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedListaNome = value;
+                                            listaSelecionada = selectedLista;
+                                          });
+                                          print(listaSelecionada.nome);
+                                        },
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        _addListBottomSheet();
+                                      },
+                                      icon: Icon(Icons.add_circle, color: Colors.blue[700]),
+                                      tooltip: 'Criar nova lista',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
 
@@ -143,120 +186,349 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Expanded(
                                           flex: 5,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text('Item no carrinho'),
-                                              Expanded(
-                                                child: Wrap(
-                                                  children: [
-                                                    ...selectedLista.itens
-                                                        .where(
-                                                          (filtro) =>
-                                                              filtro
-                                                                  .noCarrinho ==
-                                                              true,
-                                                        )
-                                                        .map(
-                                                          (item) => Chip(
-                                                            label: InkWell(
-                                                              onTap: () {
-                                                                print(
-                                                                  item.nome,
-                                                                );
-                                                              },
-                                                              child: Text(
-                                                                item.nome,
+                                          child: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green[50],
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.green[200]!, width: 1),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green[100],
+                                                    borderRadius: const BorderRadius.only(
+                                                      topLeft: Radius.circular(12),
+                                                      topRight: Radius.circular(12),
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.shopping_cart, color: Colors.green[700], size: 18),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        'Item no carrinho',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.green[700],
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(8),
+                                                    child: selectedLista.itens
+                                                        .where((filtro) => filtro.noCarrinho == true)
+                                                        .isEmpty
+                                                        ? Center(
+                                                            child: Text(
+                                                              'Nenhum item no carrinho',
+                                                              style: TextStyle(
+                                                                color: Colors.grey[600],
+                                                                fontSize: 12,
                                                               ),
                                                             ),
+                                                          )
+                                                        : Wrap(
+                                                            spacing: 6,
+                                                            runSpacing: 6,
+                                                            children: selectedLista.itens
+                                                                .where((filtro) => filtro.noCarrinho == true)
+                                                                .map(
+                                                                  (item) => Container(
+                                                                    decoration: BoxDecoration(
+                                                                      color: Colors.green[400],
+                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color: Colors.green[300]!,
+                                                                          blurRadius: 4,
+                                                                          offset: const Offset(0, 2),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    child: InkWell(
+                                                                      onLongPress: () {
+                                                                        _removerItemDaSecao(selectedLista, item);
+                                                                      },
+                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                                        child: Text(
+                                                                          item.nome,
+                                                                          style: const TextStyle(
+                                                                            color: Colors.white,
+                                                                            fontWeight: FontWeight.w500,
+                                                                            fontSize: 13,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                                .toList(),
                                                           ),
-                                                        )
-                                                        .toList(),
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                        Container(
-                                          width: 1,
-                                          color: const Color.fromARGB(
-                                            255,
-                                            213,
-                                            213,
-                                            213,
-                                          ),
-                                        ),
+                                        // Container(
+                                        //   width: 2,
+                                        //   height: 60,
+                                        //   margin: const EdgeInsets.symmetric(horizontal: 8),
+                                        //   decoration: BoxDecoration(
+                                        //     color: Colors.grey[300],
+                                        //     borderRadius: BorderRadius.circular(1),
+                                        //   ),
+                                        // ),
                                         Expanded(
                                           flex: 5,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text('Intenção de compra'),
-                                              Expanded(
-                                                child: Wrap(
-                                                  children: [
-                                                    ...selectedLista.itens
-                                                        .where(
-                                                          (filtro) =>
-                                                              filtro
-                                                                  .intencaoCompra ==
-                                                              true,
-                                                        )
-                                                        .map(
-                                                          (item) => InkWell(
-                                                            onTap: () {
-                                                              print(item.nome);
-                                                            },
-                                                            child: Chip(
-                                                              label: Text(
-                                                                item.nome,
+                                          child: Container(
+                                            margin: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.yellow[50],
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(color: Colors.yellow[600]!, width: 1),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.yellow[100],
+                                                    borderRadius: const BorderRadius.only(
+                                                      topLeft: Radius.circular(12),
+                                                      topRight: Radius.circular(12),
+                                                    ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(Icons.favorite, color: Colors.orange[700], size: 18),
+                                                      const SizedBox(width: 6),
+                                                      Text(
+                                                        'Intenção de compra',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.orange[700],
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(8),
+                                                    child: selectedLista.itens
+                                                        .where((filtro) => filtro.intencaoCompra == true)
+                                                        .isEmpty
+                                                        ? Center(
+                                                            child: Text(
+                                                              'Nenhum item em intenção',
+                                                              style: TextStyle(
+                                                                color: Colors.grey[600],
+                                                                fontSize: 12,
                                                               ),
                                                             ),
+                                                          )
+                                                        : Wrap(
+                                                            spacing: 6,
+                                                            runSpacing: 6,
+                                                            children: selectedLista.itens
+                                                                .where((filtro) => filtro.intencaoCompra == true)
+                                                                .map(
+                                                                  (item) => Container(
+                                                                    decoration: BoxDecoration(
+                                                                      color: Colors.orange[400],
+                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color: Colors.orange[300]!,
+                                                                          blurRadius: 4,
+                                                                          offset: const Offset(0, 2),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    child: InkWell(
+                                                                      onTap: () {
+                                                                        _moverParaCarrinho(selectedLista, item);
+                                                                      },
+                                                                      onLongPress: () {
+                                                                        _removerItemDaSecao(selectedLista, item);
+                                                                      },
+                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      child: Padding(
+                                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                                        child: Text(
+                                                                          item.nome,
+                                                                          style: const TextStyle(
+                                                                            color: Colors.white,
+                                                                            fontWeight: FontWeight.w500,
+                                                                            fontSize: 13,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                                .toList(),
                                                           ),
-                                                        )
-                                                        .toList(),
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Divider(color: Colors.grey),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Itens da lista "$selectedListaNome"',
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          _addItemBottomSheet();
-                                        },
-                                        child: Icon(Icons.add),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 220,
-                                    child: SingleChildScrollView(
-                                      child: Wrap(
-                                        children: selectedLista.itens.map((
-                                          item,
-                                        ) {
-                                          return InkWell(
-                                            onTap: () {
-                                              print(item.nome);
-                                            },
-                                            child: Chip(label: Text(item.nome)),
-                                          );
-                                        }).toList(),
-                                      ),
+                           
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[50],
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.grey[300]!, width: 1),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[100],
+                                            borderRadius: const BorderRadius.only(
+                                              topLeft: Radius.circular(12),
+                                              topRight: Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(width: 15),
+                                              Icon(Icons.checklist, color: Colors.grey[700], size: 18),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  'Itens da lista "$selectedListaNome"',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.grey[700],
+                                                    fontSize: 14,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              InkWell(
+                                                onTap: () {
+                                                  _addItemBottomSheet();
+                                                },
+                                                borderRadius: BorderRadius.circular(20),
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.blue[400],
+                                                    borderRadius: BorderRadius.circular(20),
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.add,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(width: 15),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          constraints: const BoxConstraints(maxHeight: 220),
+                                          child: selectedLista.itens
+                                                  .where((item) => !item.noCarrinho && !item.intencaoCompra)
+                                                  .isEmpty
+                                              ? Padding(
+                                                  padding: const EdgeInsets.all(24),
+                                                  child: Text(
+                                                    'Nenhum item disponível',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 14,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                )
+                                              : Padding(
+                                                  padding: const EdgeInsets.all(5),
+                                                  child: SingleChildScrollView(
+                                                    child: Wrap(
+                                                      spacing: 4,
+                                                      runSpacing: 8,
+                                                      children: () {
+                                                        final itensDisponiveis = selectedLista.itens
+                                                            .where((item) => !item.noCarrinho && !item.intencaoCompra)
+                                                            .toList();
+                                                        itensDisponiveis.sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
+                                                        return itensDisponiveis.map((item) {
+                                                        return Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.blue[100],
+                                                            borderRadius: BorderRadius.circular(20),
+                                                            border: Border.all(color: Colors.blue[300]!, width: 1),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color: Colors.blue[100]!,
+                                                                blurRadius: 2,
+                                                                offset: const Offset(0, 1),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: InkWell(
+                                                            onTap: () {
+                                                              _moverParaIntencaoCompra(selectedLista, item);
+                                                            },
+                                                            borderRadius: BorderRadius.circular(20),
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                                                              child: Row(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  // Icon(
+                                                                  //   Icons.add_shopping_cart,
+                                                                  //   color: Colors.blue[600],
+                                                                  //   size: 16,
+                                                                  // ),
+                                                                  // const SizedBox(width: 6),
+                                                                  Text(
+                                                                    item.nome,
+                                                                    style: TextStyle(
+                                                                      color: Colors.blue[700],
+                                                                      fontWeight: FontWeight.w500,
+                                                                      fontSize: 13,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                        }).toList();
+                                                      }(),
+                                                    ),
+                                                  ),
+                                                ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -272,21 +544,21 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (Provider.of<ListaItensProvider>(
-              context,
-              listen: false,
-            ).listaItens.isNotEmpty) {
-              _addItemBottomSheet();
-            } else {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Antes crie uma lista')));
-            }
-          },
-          child: const Icon(Icons.add),
-        ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: () {
+        //     if (Provider.of<ListaItensProvider>(
+        //       context,
+        //       listen: false,
+        //     ).listaItens.isNotEmpty) {
+        //       _addItemBottomSheet();
+        //     } else {
+        //       ScaffoldMessenger.of(
+        //         context,
+        //       ).showSnackBar(SnackBar(content: Text('Antes crie uma lista')));
+        //     }
+        //   },
+        //   child: const Icon(Icons.add),
+        // ),
       ),
     );
   }
@@ -508,42 +780,137 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<dynamic> _excluirItem(BuildContext context, ListaMODEL lista) {
-    return showDialog(
+  Future<void> _moverParaIntencaoCompra(ListaMODEL lista, ItemMODEL item) async {
+    try {
+      await Provider.of<ListaItensProvider>(
+        context,
+        listen: false,
+      ).atualizarStatusItem(
+        idLista: lista.id,
+        idItem: item.id,
+        intencaoCompra: true,
+      );
+      
+      // if (mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('${item.nome} movido para intenção de compra')),
+      //   );
+      // }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao mover item: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _moverParaCarrinho(ListaMODEL lista, ItemMODEL item) async {
+    try {
+      await Provider.of<ListaItensProvider>(
+        context,
+        listen: false,
+      ).atualizarStatusItem(
+        idLista: lista.id,
+        idItem: item.id,
+        noCarrinho: true,
+        intencaoCompra: false,
+      );
+      
+      // if (mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('${item.nome} movido para o carrinho')),
+      //   );
+      // }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao mover item: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _removerItemDaSecao(ListaMODEL lista, ItemMODEL item) async {
+    try {
+      await Provider.of<ListaItensProvider>(
+        context,
+        listen: false,
+      ).removerItemDaSecao(
+        idLista: lista.id,
+        idItem: item.id,
+      );
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${item.nome} removido da seção')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao remover item: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _resetarLista() async {
+    // Verificar se há itens para resetar
+    final itensNoCarrinho = listaSelecionada.itens.where((item) => item.noCarrinho).length;
+    final itensIntencao = listaSelecionada.itens.where((item) => item.intencaoCompra).length;
+    
+    if (itensNoCarrinho == 0 && itensIntencao == 0) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não há itens para resetar')),
+        );
+      }
+      return;
+    }
+
+    // Mostrar diálogo de confirmação
+    final confirmar = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
-        content: Text('Tem certeza que deseja excluir o item "${lista.nome}"?'),
+        title: const Text('Resetar Lista'),
+        content: Text(
+          'Tem certeza que deseja resetar a lista "${listaSelecionada.nome}"?\n\n'
+          'Esta ação irá remover todos os itens das seções "Intenção de compra" e "Item no carrinho".\n\n'
+          'Itens afetados: ${itensNoCarrinho + itensIntencao}',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              try {
-                await Provider.of<ListaItensProvider>(
-                  context,
-                  listen: false,
-                ).deleteLista(lista.id);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Lista excluída com sucesso')),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erro ao excluir lista: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('Excluir'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Resetar'),
           ),
         ],
       ),
     );
+
+    if (confirmar == true) {
+      try {
+        await Provider.of<ListaItensProvider>(
+          context,
+          listen: false,
+        ).resetarLista(idLista: listaSelecionada.id);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Lista "${listaSelecionada.nome}" resetada com sucesso')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao resetar lista: $e')),
+          );
+        }
+      }
+    }
   }
 }
