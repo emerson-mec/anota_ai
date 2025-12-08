@@ -1,7 +1,9 @@
 import 'package:anota_ai/firebase_options.dart';
+import 'package:anota_ai/pages/home_page.dart';
 import 'package:anota_ai/provider/lista_itens_provider.dart';
 import 'package:anota_ai/provider/usuario_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +12,7 @@ import 'pages/toogle_login_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Hive.initFlutter();
   runApp(const MyApp());
 }
 
@@ -33,7 +36,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         debugShowCheckedModeBanner: false,
-        home: const ToogleGoogleLoginPage(),
+        home: const HomePage(),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:anota_ai/model/lista_model.dart';
 import 'package:anota_ai/provider/lista_itens_provider.dart';
 import 'package:anota_ai/widget/drawer_custom.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Firestore removido: usando persistência local (Hive)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,242 +31,323 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     print("chamou home");
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          elevation: 0,
-          title: Text(
-            'ANOTA AÍ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          actions: [
-            IconButton(
-              tooltip: 'Resetar Lista',
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                _resetarLista();
-              },
-            ),
-            
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        elevation: 0,
+        title: Text(
+          'ANOTA AÍ',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        drawer: DrawerCUSTOM(),
-        body: Column(
-          children: [
-            Expanded(
-              child: FutureBuilder(
-                future: Provider.of<ListaItensProvider>(
-                  context,
-                ).getListasItens(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Erro ao carregar listas: ${snapshot.error}'),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+        actions: [
+          IconButton(
+            tooltip: 'Resetar Lista',
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              _resetarLista();
+            },
+          ),
+        ],
+      ),
+      drawer: DrawerCUSTOM(),
+      body: Column(
+        children: [
+          Expanded(
+            child: FutureBuilder(
+              future: Provider.of<ListaItensProvider>(context).getListasItens(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Erro ao carregar listas: ${snapshot.error}'),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Para começar crie uma lista'),
+                        TextButton(
+                          onPressed: () {
+                            _addListBottomSheet();
+                          },
+                          child: Text("+ CRIAR LISTA"),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  final listas = snapshot.data!;
+                  String? selectedListaNome = listas
+                      .firstWhere(
+                        (e) => e.prioridade == true,
+                        orElse: () => listas.first,
+                      )
+                      .nome;
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      final selectedLista = listas.firstWhere(
+                        (l) => l.nome == selectedListaNome,
+                        orElse: () => listas.first,
+                      );
+    
+                      listaSelecionada = selectedLista;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Para começar crie uma lista'),
-                          TextButton(
-                            onPressed: () {
-                              _addListBottomSheet();
-                            },
-                            child: Text("+ CRIAR LISTA"),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    final listas = snapshot.data!;
-                    String? selectedListaNome = listas
-                        .firstWhere(
-                          (e) => e.prioridade == true,
-                          orElse: () => listas.first,
-                        )
-                        .nome;
-                    return StatefulBuilder(
-                      builder: (context, setState) {
-                        final selectedLista = listas.firstWhere(
-                          (l) => l.nome == selectedListaNome,
-                          orElse: () => listas.first,
-                        );
-
-                        listaSelecionada = selectedLista;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(top: 8, left: 8, right: 8,bottom: 5),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Colors.blue[50]!, Colors.blue[100]!],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.blue[200]!, width: 1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.blue[100]!,
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                          Container(
+                            margin: const EdgeInsets.only(
+                              top: 8,
+                              left: 8,
+                              right: 8,
+                              bottom: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.blue[50]!, Colors.blue[100]!],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.list_alt, color: Colors.blue[700], size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'LISTA:',
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.blue[200]!,
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue[100]!,
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 2,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.list_alt,
+                                    color: Colors.blue[700],
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'LISTA:',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue[700],
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: DropdownButton<String>(
+                                      value: selectedListaNome,
+                                      isExpanded: true,
+                                      underline: const SizedBox(),
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
                                         color: Colors.blue[700],
+                                        fontWeight: FontWeight.w500,
                                         fontSize: 16,
                                       ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: DropdownButton<String>(
-                                        value: selectedListaNome,
-                                        isExpanded: true,
-                                        underline: const SizedBox(),
-                                        style: TextStyle(
-                                          color: Colors.blue[700],
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 16,
-                                        ),
-                                        items: listas.map<DropdownMenuItem<String>>(
-                                          (lista) {
+                                      items: listas
+                                          .map<DropdownMenuItem<String>>((
+                                            lista,
+                                          ) {
                                             return DropdownMenuItem<String>(
                                               value: lista.nome,
                                               child: Text(
                                                 lista.nome,
-                                                overflow: TextOverflow.ellipsis,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
                                               ),
                                             );
-                                          },
-                                        ).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            selectedListaNome = value;
-                                            listaSelecionada = selectedLista;
-                                          });
-                                          print(listaSelecionada.nome);
-                                        },
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        _addListBottomSheet();
+                                          })
+                                          .toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          selectedListaNome = value;
+                                          listaSelecionada = selectedLista;
+                                        });
+                                        print(listaSelecionada.nome);
                                       },
-                                      icon: Icon(Icons.add_circle, color: Colors.blue[700]),
-                                      tooltip: 'Criar nova lista',
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      _addListBottomSheet();
+                                    },
+                                    icon: Icon(
+                                      Icons.add_circle,
+                                      color: Colors.blue[700],
+                                    ),
+                                    tooltip: 'Criar nova lista',
+                                  ),
+                                ],
                               ),
                             ),
-
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Expanded(
-                                          flex: 5,
-                                          child: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.green[50],
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: Colors.green[200]!, width: 1),
+                          ),
+    
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Expanded(
+                                        flex: 5,
+                                        child: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green[50],
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: Colors.green[200]!,
+                                              width: 1,
                                             ),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.green[100],
-                                                    borderRadius: const BorderRadius.only(
-                                                      topLeft: Radius.circular(12),
-                                                      topRight: Radius.circular(12),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 8,
                                                     ),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Icon(Icons.shopping_cart, color: Colors.green[700], size: 18),
-                                                      const SizedBox(width: 6),
-                                                      Text(
-                                                        'Item no carrinho',
-                                                        style: TextStyle(
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Colors.green[700],
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(8),
-                                                    child: selectedLista.itens
-                                                        .where((filtro) => filtro.noCarrinho == true)
-                                                        .isEmpty
-                                                        ? Center(
-                                                            child: Text(
-                                                              'Nenhum item no carrinho',
-                                                              style: TextStyle(
-                                                                color: Colors.grey[600],
-                                                                fontSize: 12,
-                                                              ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.green[100],
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(
+                                                              12,
                                                             ),
+                                                        topRight:
+                                                            Radius.circular(
+                                                              12,
+                                                            ),
+                                                      ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.shopping_cart,
+                                                      color:
+                                                          Colors.green[700],
+                                                      size: 18,
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    Text(
+                                                      'Item no carrinho',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            Colors.green[700],
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8),
+                                                  child:
+                                                      selectedLista.itens
+                                                          .where(
+                                                            (filtro) =>
+                                                                filtro
+                                                                    .noCarrinho ==
+                                                                true,
                                                           )
-                                                        : Wrap(
+                                                          .isEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                            'Nenhum item no carrinho',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : SingleChildScrollView(
+                                                        child: Wrap(
                                                             spacing: 6,
                                                             runSpacing: 6,
-                                                            children: selectedLista.itens
-                                                                .where((filtro) => filtro.noCarrinho == true)
+                                                            children: selectedLista
+                                                                .itens
+                                                                .where(
+                                                                  (filtro) =>
+                                                                      filtro
+                                                                          .noCarrinho ==
+                                                                      true,
+                                                                )
                                                                 .map(
-                                                                  (item) => Container(
+                                                                  (
+                                                                    item,
+                                                                  ) => Container(
                                                                     decoration: BoxDecoration(
-                                                                      color: Colors.green[400],
-                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      color: Colors
+                                                                          .green[400],
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            20,
+                                                                          ),
                                                                       boxShadow: [
                                                                         BoxShadow(
-                                                                          color: Colors.green[300]!,
-                                                                          blurRadius: 4,
-                                                                          offset: const Offset(0, 2),
+                                                                          color:
+                                                                              Colors.green[300]!,
+                                                                          blurRadius:
+                                                                              4,
+                                                                          offset: const Offset(
+                                                                            0,
+                                                                            2,
+                                                                          ),
                                                                         ),
                                                                       ],
                                                                     ),
                                                                     child: InkWell(
                                                                       onLongPress: () {
-                                                                        _removerItemDaSecao(selectedLista, item);
+                                                                        _removerItemDaSecao(
+                                                                          selectedLista,
+                                                                          item,
+                                                                        );
                                                                       },
-                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            20,
+                                                                          ),
                                                                       child: Padding(
-                                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              12,
+                                                                          vertical:
+                                                                              8,
+                                                                        ),
                                                                         child: Text(
                                                                           item.nome,
                                                                           style: const TextStyle(
-                                                                            color: Colors.white,
-                                                                            fontWeight: FontWeight.w500,
-                                                                            fontSize: 13,
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                            fontSize:
+                                                                                13,
                                                                           ),
                                                                         ),
                                                                       ),
@@ -275,107 +356,175 @@ class _HomePageState extends State<HomePage> {
                                                                 )
                                                                 .toList(),
                                                           ),
-                                                  ),
+                                                      ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        // Container(
-                                        //   width: 2,
-                                        //   height: 60,
-                                        //   margin: const EdgeInsets.symmetric(horizontal: 8),
-                                        //   decoration: BoxDecoration(
-                                        //     color: Colors.grey[300],
-                                        //     borderRadius: BorderRadius.circular(1),
-                                        //   ),
-                                        // ),
-                                        Expanded(
-                                          flex: 5,
-                                          child: Container(
-                                            margin: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.yellow[50],
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(color: Colors.yellow[600]!, width: 1),
+                                      ),
+                                      // Container(
+                                      //   width: 2,
+                                      //   height: 60,
+                                      //   margin: const EdgeInsets.symmetric(horizontal: 8),
+                                      //   decoration: BoxDecoration(
+                                      //     color: Colors.grey[300],
+                                      //     borderRadius: BorderRadius.circular(1),
+                                      //   ),
+                                      // ),
+                                      Expanded(
+                                        flex: 5,
+                                        child: Container(
+                                          margin: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.yellow[50],
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border: Border.all(
+                                              color: Colors.yellow[600]!,
+                                              width: 1,
                                             ),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.yellow[100],
-                                                    borderRadius: const BorderRadius.only(
-                                                      topLeft: Radius.circular(12),
-                                                      topRight: Radius.circular(12),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 8,
                                                     ),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    children: [
-                                                      Icon(Icons.favorite, color: Colors.orange[700], size: 18),
-                                                      const SizedBox(width: 6),
-                                                      Text(
-                                                        'Intenção de compra',
-                                                        style: TextStyle(
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Colors.orange[700],
-                                                          fontSize: 14,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(8),
-                                                    child: selectedLista.itens
-                                                        .where((filtro) => filtro.intencaoCompra == true)
-                                                        .isEmpty
-                                                        ? Center(
-                                                            child: Text(
-                                                              'Nenhum item em intenção',
-                                                              style: TextStyle(
-                                                                color: Colors.grey[600],
-                                                                fontSize: 12,
-                                                              ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.yellow[100],
+                                                  borderRadius:
+                                                      const BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(
+                                                              12,
                                                             ),
+                                                        topRight:
+                                                            Radius.circular(
+                                                              12,
+                                                            ),
+                                                      ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.favorite,
+                                                      color:
+                                                          Colors.orange[700],
+                                                      size: 18,
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    Text(
+                                                      'Intenção de compra',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors
+                                                            .orange[700],
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8),
+                                                  child:
+                                                      selectedLista.itens
+                                                          .where(
+                                                            (filtro) =>
+                                                                filtro
+                                                                    .intencaoCompra ==
+                                                                true,
                                                           )
-                                                        : Wrap(
+                                                          .isEmpty
+                                                      ? Center(
+                                                          child: Text(
+                                                            'Nenhum item em intenção',
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : SingleChildScrollView(
+                                                        child: Wrap(
                                                             spacing: 6,
                                                             runSpacing: 6,
-                                                            children: selectedLista.itens
-                                                                .where((filtro) => filtro.intencaoCompra == true)
+                                                            children: selectedLista
+                                                                .itens
+                                                                .where(
+                                                                  (filtro) =>
+                                                                      filtro
+                                                                          .intencaoCompra ==
+                                                                      true,
+                                                                )
                                                                 .map(
-                                                                  (item) => Container(
+                                                                  (
+                                                                    item,
+                                                                  ) => Container(
                                                                     decoration: BoxDecoration(
-                                                                      color: Colors.orange[400],
-                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      color: Colors
+                                                                          .orange[400],
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            20,
+                                                                          ),
                                                                       boxShadow: [
                                                                         BoxShadow(
-                                                                          color: Colors.orange[300]!,
-                                                                          blurRadius: 4,
-                                                                          offset: const Offset(0, 2),
+                                                                          color:
+                                                                              Colors.orange[300]!,
+                                                                          blurRadius:
+                                                                              4,
+                                                                          offset: const Offset(
+                                                                            0,
+                                                                            2,
+                                                                          ),
                                                                         ),
                                                                       ],
                                                                     ),
                                                                     child: InkWell(
                                                                       onTap: () {
-                                                                        _moverParaCarrinho(selectedLista, item);
+                                                                        _moverParaCarrinho(
+                                                                          selectedLista,
+                                                                          item,
+                                                                        );
                                                                       },
                                                                       onLongPress: () {
-                                                                        _removerItemDaSecao(selectedLista, item);
+                                                                        _removerItemDaSecao(
+                                                                          selectedLista,
+                                                                          item,
+                                                                        );
                                                                       },
-                                                                      borderRadius: BorderRadius.circular(20),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            20,
+                                                                          ),
                                                                       child: Padding(
-                                                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              12,
+                                                                          vertical:
+                                                                              8,
+                                                                        ),
                                                                         child: Text(
                                                                           item.nome,
                                                                           style: const TextStyle(
-                                                                            color: Colors.white,
-                                                                            fontWeight: FontWeight.w500,
-                                                                            fontSize: 13,
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontWeight:
+                                                                                FontWeight.w500,
+                                                                            fontSize:
+                                                                                13,
                                                                           ),
                                                                         ),
                                                                       ),
@@ -384,124 +533,198 @@ class _HomePageState extends State<HomePage> {
                                                                 )
                                                                 .toList(),
                                                           ),
-                                                  ),
+                                                      ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+    
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[50],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.grey[300]!,
+                                      width: 1,
                                     ),
                                   ),
-                           
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[50],
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: Colors.grey[300]!, width: 1),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 5),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[100],
-                                            borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(12),
-                                              topRight: Radius.circular(12),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[100],
+                                          borderRadius:
+                                              const BorderRadius.only(
+                                                topLeft: Radius.circular(12),
+                                                topRight: Radius.circular(12),
+                                              ),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(width: 15),
+                                            Icon(
+                                              Icons.checklist,
+                                              color: Colors.grey[700],
+                                              size: 18,
                                             ),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              SizedBox(width: 15),
-                                              Icon(Icons.checklist, color: Colors.grey[700], size: 18),
-                                              const SizedBox(width: 8),
-                                              Expanded(
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                'Itens da lista "$selectedListaNome"',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey[700],
+                                                  fontSize: 14,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            InkWell(
+                                              onTap: () {
+                                                _addItemBottomSheet();
+                                              },
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue[400],
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        20,
+                                                      ),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.add,
+                                                  color: Colors.white,
+                                                  size: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: 15),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        constraints: const BoxConstraints(
+                                          maxHeight: 220,
+                                        ),
+                                        child:
+                                            selectedLista.itens
+                                                .where(
+                                                  (item) =>
+                                                      !item.noCarrinho &&
+                                                      !item.intencaoCompra,
+                                                )
+                                                .isEmpty
+                                            ? Padding(
+                                                padding: const EdgeInsets.all(
+                                                  24,
+                                                ),
                                                 child: Text(
-                                                  'Itens da lista "$selectedListaNome"',
+                                                  'Nenhum item disponível',
                                                   style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.grey[700],
+                                                    color: Colors.grey[600],
                                                     fontSize: 14,
                                                   ),
                                                   textAlign: TextAlign.center,
                                                 ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              InkWell(
-                                                onTap: () {
-                                                  _addItemBottomSheet();
-                                                },
-                                                borderRadius: BorderRadius.circular(20),
-                                                child: Container(
-                                                  padding: const EdgeInsets.all(6),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue[400],
-                                                    borderRadius: BorderRadius.circular(20),
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.add,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  ),
+                                              )
+                                            : Padding(
+                                                padding: const EdgeInsets.all(
+                                                  5,
                                                 ),
-                                              ),
-                                              SizedBox(width: 15),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          constraints: const BoxConstraints(maxHeight: 220),
-                                          child: selectedLista.itens
-                                                  .where((item) => !item.noCarrinho && !item.intencaoCompra)
-                                                  .isEmpty
-                                              ? Padding(
-                                                  padding: const EdgeInsets.all(24),
-                                                  child: Text(
-                                                    'Nenhum item disponível',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[600],
-                                                      fontSize: 14,
-                                                    ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                )
-                                              : Padding(
-                                                  padding: const EdgeInsets.all(5),
-                                                  child: SingleChildScrollView(
-                                                    child: Wrap(
-                                                      spacing: 4,
-                                                      runSpacing: 8,
-                                                      children: () {
-                                                        final itensDisponiveis = selectedLista.itens
-                                                            .where((item) => !item.noCarrinho && !item.intencaoCompra)
-                                                            .toList();
-                                                        itensDisponiveis.sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
-                                                        return itensDisponiveis.map((item) {
+                                                child: SingleChildScrollView(
+                                                  child: Wrap(
+                                                    spacing: 4,
+                                                    runSpacing: 8,
+                                                    children: () {
+                                                      final itensDisponiveis =
+                                                          selectedLista.itens
+                                                              .where(
+                                                                (item) =>
+                                                                    !item
+                                                                        .noCarrinho &&
+                                                                    !item
+                                                                        .intencaoCompra,
+                                                              )
+                                                              .toList();
+                                                      itensDisponiveis.sort(
+                                                        (a, b) => a.nome
+                                                            .toLowerCase()
+                                                            .compareTo(
+                                                              b.nome
+                                                                  .toLowerCase(),
+                                                            ),
+                                                      );
+                                                      return itensDisponiveis.map((
+                                                        item,
+                                                      ) {
                                                         return Container(
                                                           decoration: BoxDecoration(
-                                                            color: Colors.blue[100],
-                                                            borderRadius: BorderRadius.circular(20),
-                                                            border: Border.all(color: Colors.blue[300]!, width: 1),
+                                                            color: Colors
+                                                                .blue[100],
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  20,
+                                                                ),
+                                                            border: Border.all(
+                                                              color: Colors
+                                                                  .blue[300]!,
+                                                              width: 1,
+                                                            ),
                                                             boxShadow: [
                                                               BoxShadow(
-                                                                color: Colors.blue[100]!,
+                                                                color: Colors
+                                                                    .blue[100]!,
                                                                 blurRadius: 2,
-                                                                offset: const Offset(0, 1),
+                                                                offset:
+                                                                    const Offset(
+                                                                      0,
+                                                                      1,
+                                                                    ),
                                                               ),
                                                             ],
                                                           ),
                                                           child: InkWell(
                                                             onTap: () {
-                                                              _moverParaIntencaoCompra(selectedLista, item);
+                                                              _moverParaIntencaoCompra(
+                                                                selectedLista,
+                                                                item,
+                                                              );
                                                             },
-                                                            borderRadius: BorderRadius.circular(20),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  20,
+                                                                ),
                                                             child: Padding(
-                                                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        14,
+                                                                    vertical:
+                                                                        7,
+                                                                  ),
                                                               child: Row(
-                                                                mainAxisSize: MainAxisSize.min,
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
                                                                 children: [
                                                                   // Icon(
                                                                   //   Icons.add_shopping_cart,
@@ -512,9 +735,12 @@ class _HomePageState extends State<HomePage> {
                                                                   Text(
                                                                     item.nome,
                                                                     style: TextStyle(
-                                                                      color: Colors.blue[700],
-                                                                      fontWeight: FontWeight.w500,
-                                                                      fontSize: 13,
+                                                                      color: Colors
+                                                                          .blue[700],
+                                                                      fontWeight:
+                                                                          FontWeight.w500,
+                                                                      fontSize:
+                                                                          13,
                                                                     ),
                                                                   ),
                                                                 ],
@@ -522,44 +748,43 @@ class _HomePageState extends State<HomePage> {
                                                             ),
                                                           ),
                                                         );
-                                                        }).toList();
-                                                      }(),
-                                                    ),
+                                                      }).toList();
+                                                    }(),
                                                   ),
                                                 ),
-                                        ),
-                                      ],
-                                    ),
+                                              ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
             ),
-          ],
-        ),
-        // floatingActionButton: FloatingActionButton(
-        //   onPressed: () {
-        //     if (Provider.of<ListaItensProvider>(
-        //       context,
-        //       listen: false,
-        //     ).listaItens.isNotEmpty) {
-        //       _addItemBottomSheet();
-        //     } else {
-        //       ScaffoldMessenger.of(
-        //         context,
-        //       ).showSnackBar(SnackBar(content: Text('Antes crie uma lista')));
-        //     }
-        //   },
-        //   child: const Icon(Icons.add),
-        // ),
+          ),
+        ],
       ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     if (Provider.of<ListaItensProvider>(
+      //       context,
+      //       listen: false,
+      //     ).listaItens.isNotEmpty) {
+      //       _addItemBottomSheet();
+      //     } else {
+      //       ScaffoldMessenger.of(
+      //         context,
+      //       ).showSnackBar(SnackBar(content: Text('Antes crie uma lista')));
+      //     }
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 
@@ -620,18 +845,18 @@ class _HomePageState extends State<HomePage> {
                                       id: DateTime.now().millisecondsSinceEpoch
                                           .toString(),
                                       nome: _nomeListaController.text,
-                                      dataCriacao: Timestamp.now(),
+                                      dataCriacao: DateTime.now(),
                                     ),
                                   );
                                   if (mounted) {
                                     Navigator.of(ctx).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Lista criada com sucesso',
-                                        ),
-                                      ),
-                                    );
+                                    // ScaffoldMessenger.of(context).showSnackBar(
+                                    //   const SnackBar(
+                                    //     content: Text(
+                                    //       'Lista criada com sucesso',
+                                    //     ),
+                                    //   ),
+                                    // );
                                   }
                                 } catch (e) {
                                   if (mounted) {
@@ -722,9 +947,10 @@ class _HomePageState extends State<HomePage> {
                                 try {
                                   var novoItem = ItemMODEL(
                                     idLista: listaSelecionada.id,
-                                    id: '123',
+                                    id: DateTime.now().millisecondsSinceEpoch
+                                        .toString(),
                                     nome: _nomeItemController.text,
-                                    dataCriacao: Timestamp.now(),
+                                    dataCriacao: DateTime.now(),
                                   );
 
                                   Provider.of<ListaItensProvider>(
@@ -737,13 +963,13 @@ class _HomePageState extends State<HomePage> {
 
                                   if (mounted) {
                                     Navigator.of(ctx).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Lista criada com sucesso',
-                                        ),
-                                      ),
-                                    );
+                                    // ScaffoldMessenger.of(context).showSnackBar(
+                                    //   const SnackBar(
+                                    //     content: Text(
+                                    //       'Lista criada com sucesso',
+                                    //     ),
+                                    //   ),
+                                    // );
                                   }
                                 } catch (e) {
                                   if (mounted) {
@@ -780,7 +1006,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _moverParaIntencaoCompra(ListaMODEL lista, ItemMODEL item) async {
+  Future<void> _moverParaIntencaoCompra(
+    ListaMODEL lista,
+    ItemMODEL item,
+  ) async {
     try {
       await Provider.of<ListaItensProvider>(
         context,
@@ -790,7 +1019,7 @@ class _HomePageState extends State<HomePage> {
         idItem: item.id,
         intencaoCompra: true,
       );
-      
+
       // if (mounted) {
       //   ScaffoldMessenger.of(context).showSnackBar(
       //     SnackBar(content: Text('${item.nome} movido para intenção de compra')),
@@ -798,9 +1027,9 @@ class _HomePageState extends State<HomePage> {
       // }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao mover item: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao mover item: $e')));
       }
     }
   }
@@ -816,7 +1045,7 @@ class _HomePageState extends State<HomePage> {
         noCarrinho: true,
         intencaoCompra: false,
       );
-      
+
       // if (mounted) {
       //   ScaffoldMessenger.of(context).showSnackBar(
       //     SnackBar(content: Text('${item.nome} movido para o carrinho')),
@@ -824,9 +1053,9 @@ class _HomePageState extends State<HomePage> {
       // }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao mover item: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao mover item: $e')));
       }
     }
   }
@@ -836,30 +1065,25 @@ class _HomePageState extends State<HomePage> {
       await Provider.of<ListaItensProvider>(
         context,
         listen: false,
-      ).removerItemDaSecao(
-        idLista: lista.id,
-        idItem: item.id,
-      );
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${item.nome} removido da seção')),
-        );
-      }
+      ).removerItemDaSecao(idLista: lista.id, idItem: item.id);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao remover item: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao remover item: $e')));
       }
     }
   }
 
   Future<void> _resetarLista() async {
     // Verificar se há itens para resetar
-    final itensNoCarrinho = listaSelecionada.itens.where((item) => item.noCarrinho).length;
-    final itensIntencao = listaSelecionada.itens.where((item) => item.intencaoCompra).length;
-    
+    final itensNoCarrinho = listaSelecionada.itens
+        .where((item) => item.noCarrinho)
+        .length;
+    final itensIntencao = listaSelecionada.itens
+        .where((item) => item.intencaoCompra)
+        .length;
+
     if (itensNoCarrinho == 0 && itensIntencao == 0) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -898,17 +1122,21 @@ class _HomePageState extends State<HomePage> {
           context,
           listen: false,
         ).resetarLista(idLista: listaSelecionada.id);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Lista "${listaSelecionada.nome}" resetada com sucesso')),
+            SnackBar(
+              content: Text(
+                'Lista "${listaSelecionada.nome}" resetada com sucesso',
+              ),
+            ),
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao resetar lista: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Erro ao resetar lista: $e')));
         }
       }
     }

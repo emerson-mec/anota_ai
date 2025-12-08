@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -6,101 +5,55 @@ import 'package:google_sign_in/google_sign_in.dart';
 class UsuarioProvider extends ChangeNotifier {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
-  static bool isInitialize = false;
 
-  // Get current user
-  static User? usuarioAtual() {
-    if (_auth.currentUser == null) {
-      return null;
-    }
-    return _auth.currentUser;
-  }
+  // Retorna o usuário atual do Firebase
+  static User? usuarioAtual() => _auth.currentUser;
 
-  static Future<void> initSignIn() async {
-    if (!isInitialize) {
-      await _googleSignIn.initialize(
-        serverClientId:
-            '692174332763-afc4fcngmheo7n82qnhi2jf5se6f9jkq.apps.googleusercontent.com',
-      );
-    }
-    isInitialize = true;
-  }
-
-  // Sign in with Google
+  /// Tenta efetuar login com Google e retorna `UserCredential` em sucesso.
+  /// Retorna `null` se o usuário cancelar ou em caso de erro.
   Future<UserCredential?> signInComGoogle() async {
     try {
-      initSignIn();
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
-      final idToken = googleUser.authentication.idToken;
-      final authorizationClient = googleUser.authorizationClient;
-      GoogleSignInClientAuthorization? authorization = await authorizationClient
-          .authorizationForScopes(['email', 'profile']);
-      final accessToken = authorization?.accessToken;
-      if (accessToken == null) {
-        final authorization2 = await authorizationClient.authorizationForScopes(
-          ['email', 'profile'],
-        );
-        
-        if (authorization2?.accessToken == null) {
-          throw FirebaseAuthException(code: "error", message: "error");
-        }
-        authorization = authorization2;
+      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      if (googleUser == null) {
+        if (kDebugMode) print('Usuário cancelou o Google Sign-In');
+        return null;
       }
-      final credential = GoogleAuthProvider.credential(
-        accessToken: accessToken,
-        idToken: idToken,
-      );
-      
-      final UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithCredential(credential);
-      final User? user = userCredential.user;
 
-      if (user != null) {
-        final userDoc = FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(user.uid);
-            
-        final docSnapshot = await userDoc.get();
-        if (!docSnapshot.exists) {
-          await userDoc.set({
-            'uid': user.uid,
-            'nome': user.displayName ?? '',
-            'email': user.email ?? '',
-            'isAssinante': false,
-            'dataAssinatura': null,
-            'photoURL': user.photoURL ?? '',
-          }, SetOptions(merge: true));
-        }
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final String? idToken = googleAuth.idToken;
+      final String? accessToken = googleAuth.idToken;
+
+      if ((idToken == null || idToken.isEmpty) && (accessToken == null || accessToken.isEmpty)) {
+        if (kDebugMode) print('Tokens do Google são inválidos');
+        return null;
       }
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      final userCredential = await _auth.signInWithCredential(credential);
+      if (kDebugMode) print('Login Google realizado: ${userCredential.user?.uid}');
       return userCredential;
-    }  on FirebaseException catch (e) {
-      // Tratar permissão negada especificamente
+    } catch (e, st) {
       if (kDebugMode) {
-        print('FirebaseException code=${e.code} message=${e.message}');
+        print('Erro no signInComGoogle: $e');
+        print(st);
       }
-      if (e.code == 'permission-denied') {
-        throw FirebaseException(
-            plugin: e.plugin,
-            message: 'Permissão negada ao gravar no Firestore. Verifique as regras de segurança.',
-            code: e.code);
-      }
-      rethrow;
-    } catch (e) {
-      if (kDebugMode) print('Error: $e');
-      rethrow;
+      return null;
     }
   }
 
-  // Sign out
+  /// Faz sign out do Google e do Firebase
   Future<void> signOut() async {
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
-      // ignore: avoid_print
-      print('Error signing out: $e');
-      // ignore: use_rethrow_when_possible
-      throw e;
+      if (kDebugMode) print('Erro ao deslogar: $e');
+      rethrow;
     }
   }
 }

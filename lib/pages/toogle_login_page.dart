@@ -41,18 +41,21 @@ class NaoLogadoPage extends StatefulWidget {
 class _NaoLogadoPageState extends State<NaoLogadoPage> {
   entrarComGoogle() async {
     try {
-      await Provider.of<UsuarioProvider>(
-        context,
-        listen: false,
-      ).signInComGoogle();
+      final res = await Provider.of<UsuarioProvider>(context, listen: false).signInComGoogle();
 
-      //NavegacaoCUSTOM.pushReplacement(context, const HomePage());
+      // se res for null, usuário cancelou
+      if (res == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Acesso cancelado pelo usuário.')),
+        );
+        return;
+      }
+
       if (!mounted) return;
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Acesso cancelado pelo usuário.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao autenticar: $e')));
     }
   }
 

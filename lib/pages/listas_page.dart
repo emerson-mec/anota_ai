@@ -2,7 +2,7 @@
 
 import 'package:anota_ai/model/lista_model.dart';
 import 'package:anota_ai/provider/lista_itens_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Firestore removido: usando persistência local (Hive)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -73,19 +73,19 @@ class _ListasPAGEState extends State<ListasPAGE> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text("PRIORIDADE: "),
-
+                              Divider(),
                               SizedBox(
                                 width: 110,
                                 child: SwitchListTile(
                                   value: lista.prioridade,
                                   onChanged: (value) async {
-                                    await Provider.of<ListaItensProvider>(
-                                      context,
-                                      listen: false,
-                                    ).mudarPrioridade(
-                                      idLista: lista.id,
-                                      isPrioridade: value,
-                                    );
+                                    // await Provider.of<ListaItensProvider>(
+                                    //   context,
+                                    //   listen: false,
+                                    // ).mudarPrioridade(
+                                    //   idLista: lista.id,
+                                    //   isPrioridade: value,
+                                    // );
                                   },
                                 ),
                               ),
@@ -178,7 +178,7 @@ class _ListasPAGEState extends State<ListasPAGE> {
                                       id: DateTime.now().millisecondsSinceEpoch
                                           .toString(),
                                       nome: _nomeListaController.text,
-                                      dataCriacao: Timestamp.now(),
+                                      dataCriacao: DateTime.now(),
                                     ),
                                   );
                                   if (mounted) {
@@ -443,7 +443,6 @@ class _ListasPAGEState extends State<ListasPAGE> {
                         ).deletarItem(lista, item);
 
                         Navigator.pop(context);
-                        
                       },
                       child: Text(
                         'Excluir',
