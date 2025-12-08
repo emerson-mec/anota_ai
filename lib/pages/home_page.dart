@@ -1097,11 +1097,9 @@ class _HomePageState extends State<HomePage> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Resetar Lista'),
+        title: const Text('Resetar Itens'),
         content: Text(
-          'Tem certeza que deseja resetar a lista "${listaSelecionada.nome}"?\n\n'
-          'Esta ação irá remover todos os itens das seções "Intenção de compra" e "Item no carrinho".\n\n'
-          'Itens afetados: ${itensNoCarrinho + itensIntencao}',
+          'Esta ação limpara apenas "intenção de compra" e "item no carrinho"'
         ),
         actions: [
           TextButton(
