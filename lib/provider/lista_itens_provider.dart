@@ -128,4 +128,30 @@ class ListaItensProvider extends ChangeNotifier {
     await _saveLista(_listaItens[listaIndex]);
     notifyListeners();
   }
+
+  Future<void> mudarPrioridade(String idLista, bool prioridade) async {
+    // Se prioridade é true, desmarcar todas as outras
+    if (prioridade) {
+      for (var lista in _listaItens) {
+        if (lista.id != idLista) {
+          lista.prioridade = false;
+          await _saveLista(lista);
+        }
+      }
+      // Marcar a lista selecionada como prioridade
+      final listaIndex = _listaItens.indexWhere((l) => l.id == idLista);
+      if (listaIndex != -1) {
+        _listaItens[listaIndex].prioridade = true;
+        await _saveLista(_listaItens[listaIndex]);
+      }
+    } else {
+      // Se prioridade é false, apenas desmarcar a lista
+      final listaIndex = _listaItens.indexWhere((l) => l.id == idLista);
+      if (listaIndex != -1) {
+        _listaItens[listaIndex].prioridade = false;
+        await _saveLista(_listaItens[listaIndex]);
+      }
+    }
+    notifyListeners();
+  }
 }

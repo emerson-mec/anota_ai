@@ -79,13 +79,10 @@ class _ListasPAGEState extends State<ListasPAGE> {
                                 child: SwitchListTile(
                                   value: lista.prioridade,
                                   onChanged: (value) async {
-                                    // await Provider.of<ListaItensProvider>(
-                                    //   context,
-                                    //   listen: false,
-                                    // ).mudarPrioridade(
-                                    //   idLista: lista.id,
-                                    //   isPrioridade: value,
-                                    // );
+                                    await Provider.of<ListaItensProvider>(
+                                      context,
+                                      listen: false,
+                                    ).mudarPrioridade(lista.id, value);
                                   },
                                 ),
                               ),

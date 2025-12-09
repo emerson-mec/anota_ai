@@ -35,10 +35,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
-        title: Text(
-          'ANOTA AÍ',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text('ANOTA AÍ', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             tooltip: 'Resetar Lista',
@@ -91,7 +88,7 @@ class _HomePageState extends State<HomePage> {
                         (l) => l.nome == selectedListaNome,
                         orElse: () => listas.first,
                       );
-    
+
                       listaSelecionada = selectedLista;
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,13 +160,16 @@ class _HomePageState extends State<HomePage> {
                                               value: lista.nome,
                                               child: Text(
                                                 lista.nome,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             );
                                           })
                                           .toList(),
-                                      onChanged: (value) {
+                                      onChanged: (value) async {
+                                        // await Provider.of<ListaItensProvider>(
+                                        //   context,
+                                        //   listen: false,
+                                        // ).mudarPrioridade(lista.id, value);
                                         setState(() {
                                           selectedListaNome = value;
                                           listaSelecionada = selectedLista;
@@ -192,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           ),
-    
+
                           Expanded(
                             child: Column(
                               children: [
@@ -207,8 +207,9 @@ class _HomePageState extends State<HomePage> {
                                           margin: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: Colors.green[50],
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                             border: Border.all(
                                               color: Colors.green[200]!,
                                               width: 1,
@@ -228,24 +229,18 @@ class _HomePageState extends State<HomePage> {
                                                   borderRadius:
                                                       const BorderRadius.only(
                                                         topLeft:
-                                                            Radius.circular(
-                                                              12,
-                                                            ),
+                                                            Radius.circular(12),
                                                         topRight:
-                                                            Radius.circular(
-                                                              12,
-                                                            ),
+                                                            Radius.circular(12),
                                                       ),
                                                 ),
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .center,
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Icon(
                                                       Icons.shopping_cart,
-                                                      color:
-                                                          Colors.green[700],
+                                                      color: Colors.green[700],
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 6),
@@ -264,8 +259,9 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               Expanded(
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8),
+                                                  padding: const EdgeInsets.all(
+                                                    8,
+                                                  ),
                                                   child:
                                                       selectedLista.itens
                                                           .where(
@@ -286,7 +282,7 @@ class _HomePageState extends State<HomePage> {
                                                           ),
                                                         )
                                                       : SingleChildScrollView(
-                                                        child: Wrap(
+                                                          child: Wrap(
                                                             spacing: 6,
                                                             runSpacing: 6,
                                                             children: selectedLista
@@ -356,7 +352,7 @@ class _HomePageState extends State<HomePage> {
                                                                 )
                                                                 .toList(),
                                                           ),
-                                                      ),
+                                                        ),
                                                 ),
                                               ),
                                             ],
@@ -378,8 +374,9 @@ class _HomePageState extends State<HomePage> {
                                           margin: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: Colors.yellow[50],
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                             border: Border.all(
                                               color: Colors.yellow[600]!,
                                               width: 1,
@@ -399,24 +396,18 @@ class _HomePageState extends State<HomePage> {
                                                   borderRadius:
                                                       const BorderRadius.only(
                                                         topLeft:
-                                                            Radius.circular(
-                                                              12,
-                                                            ),
+                                                            Radius.circular(12),
                                                         topRight:
-                                                            Radius.circular(
-                                                              12,
-                                                            ),
+                                                            Radius.circular(12),
                                                       ),
                                                 ),
                                                 child: Row(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .center,
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Icon(
                                                       Icons.favorite,
-                                                      color:
-                                                          Colors.orange[700],
+                                                      color: Colors.orange[700],
                                                       size: 18,
                                                     ),
                                                     const SizedBox(width: 6),
@@ -425,8 +416,8 @@ class _HomePageState extends State<HomePage> {
                                                       style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
-                                                        color: Colors
-                                                            .orange[700],
+                                                        color:
+                                                            Colors.orange[700],
                                                         fontSize: 14,
                                                       ),
                                                     ),
@@ -435,8 +426,9 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               Expanded(
                                                 child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8),
+                                                  padding: const EdgeInsets.all(
+                                                    8,
+                                                  ),
                                                   child:
                                                       selectedLista.itens
                                                           .where(
@@ -457,7 +449,7 @@ class _HomePageState extends State<HomePage> {
                                                           ),
                                                         )
                                                       : SingleChildScrollView(
-                                                        child: Wrap(
+                                                          child: Wrap(
                                                             spacing: 6,
                                                             runSpacing: 6,
                                                             children: selectedLista
@@ -533,7 +525,7 @@ class _HomePageState extends State<HomePage> {
                                                                 )
                                                                 .toList(),
                                                           ),
-                                                      ),
+                                                        ),
                                                 ),
                                               ),
                                             ],
@@ -543,7 +535,7 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 ),
-    
+
                                 Container(
                                   margin: const EdgeInsets.symmetric(
                                     horizontal: 8,
@@ -564,11 +556,10 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.grey[100],
-                                          borderRadius:
-                                              const BorderRadius.only(
-                                                topLeft: Radius.circular(12),
-                                                topRight: Radius.circular(12),
-                                              ),
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            topRight: Radius.circular(12),
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisAlignment:
@@ -606,9 +597,7 @@ class _HomePageState extends State<HomePage> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.blue[400],
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                        20,
-                                                      ),
+                                                      BorderRadius.circular(20),
                                                 ),
                                                 child: const Icon(
                                                   Icons.add,
@@ -718,8 +707,7 @@ class _HomePageState extends State<HomePage> {
                                                                   const EdgeInsets.symmetric(
                                                                     horizontal:
                                                                         14,
-                                                                    vertical:
-                                                                        7,
+                                                                    vertical: 7,
                                                                   ),
                                                               child: Row(
                                                                 mainAxisSize:
@@ -738,7 +726,8 @@ class _HomePageState extends State<HomePage> {
                                                                       color: Colors
                                                                           .blue[700],
                                                                       fontWeight:
-                                                                          FontWeight.w500,
+                                                                          FontWeight
+                                                                              .w500,
                                                                       fontSize:
                                                                           13,
                                                                     ),
@@ -1099,7 +1088,7 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => AlertDialog(
         title: const Text('Resetar Itens'),
         content: Text(
-          'Esta ação limpara apenas "intenção de compra" e "item no carrinho"'
+          'Esta ação limpara apenas "intenção de compra" e "item no carrinho"',
         ),
         actions: [
           TextButton(
