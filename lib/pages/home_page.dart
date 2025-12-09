@@ -166,15 +166,24 @@ class _HomePageState extends State<HomePage> {
                                           })
                                           .toList(),
                                       onChanged: (value) async {
-                                        // await Provider.of<ListaItensProvider>(
-                                        //   context,
-                                        //   listen: false,
-                                        // ).mudarPrioridade(lista.id, value);
-                                        setState(() {
-                                          selectedListaNome = value;
-                                          listaSelecionada = selectedLista;
-                                        });
-                                        print(listaSelecionada.nome);
+                                        if (value != null && value != selectedListaNome) {
+                                          // Encontrar a lista selecionada
+                                          final novaLista = listas.firstWhere(
+                                            (l) => l.nome == value,
+                                            orElse: () => listas.first,
+                                          );
+                                          
+                                          // Chamar mudarPrioridade para marcar a nova lista como prioritária
+                                          await Provider.of<ListaItensProvider>(
+                                            context,
+                                            listen: false,
+                                          ).mudarPrioridade(novaLista.id, true);
+                                          
+                                          setState(() {
+                                            selectedListaNome = value;
+                                            listaSelecionada = novaLista;
+                                          });
+                                        }
                                       },
                                     ),
                                   ),
