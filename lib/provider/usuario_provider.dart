@@ -4,52 +4,46 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class UsuarioProvider extends ChangeNotifier {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
   // Retorna o usuário atual do Firebase
   static User? usuarioAtual() => _auth.currentUser;
 
-  /// Tenta efetuar login com Google e retorna `UserCredential` em sucesso.
-  /// Retorna `null` se o usuário cancelar ou em caso de erro.
   Future<UserCredential?> signInComGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
+      await GoogleSignIn.instance.initialize();
+      final googleSignIn = GoogleSignIn.instance;
+
+      final GoogleSignInAccount? googleUser = await googleSignIn.authenticate();
       if (googleUser == null) {
-        if (kDebugMode) print('Usuário cancelou o Google Sign-In');
+        if (kDebugMode) print('Erro Sign-In no UsuarioProvider');
         return null;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      final String? idToken = googleAuth.idToken;
-      final String? accessToken = googleAuth.idToken;
-
-      if ((idToken == null || idToken.isEmpty) && (accessToken == null || accessToken.isEmpty)) {
-        if (kDebugMode) print('Tokens do Google são inválidos');
-        return null;
-      }
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
-        idToken: idToken,
-        accessToken: accessToken,
+        idToken: googleAuth.idToken,
       );
 
-      final userCredential = await _auth.signInWithCredential(credential);
-      if (kDebugMode) print('Login Google realizado: ${userCredential.user?.uid}');
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
       return userCredential;
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e, st) {
       if (kDebugMode) {
-        print('Erro no signInComGoogle: $e');
+        print('Erro no login com Google');
         print(st);
       }
-      return null;
+      rethrow;
     }
   }
 
-  /// Faz sign out do Google e do Firebase
   Future<void> signOut() async {
     try {
-      await _googleSignIn.signOut();
+      await GoogleSignIn.instance.signOut();
       await _auth.signOut();
     } catch (e) {
       if (kDebugMode) print('Erro ao deslogar: $e');

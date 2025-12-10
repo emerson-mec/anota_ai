@@ -18,13 +18,21 @@ class _ToogleGoogleLoginPageState extends State<ToogleGoogleLoginPage> {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Erro ao verificar autenticação: ${snapshot.error}')),
+          );
         }
 
         if (snapshot.hasData) {
-          return HomePage(); // usuário logado
+          return const HomePage();
         } else {
-          return NaoLogadoPage(); // usuário não logado
+          return const NaoLogadoPage();
         }
       },
     );
@@ -39,23 +47,27 @@ class NaoLogadoPage extends StatefulWidget {
 }
 
 class _NaoLogadoPageState extends State<NaoLogadoPage> {
-  entrarComGoogle() async {
+  bool _isSigning = false;
+
+  Future<void> entrarComGoogle() async {
+    setState(() => _isSigning = true);
     try {
       final res = await Provider.of<UsuarioProvider>(context, listen: false).signInComGoogle();
 
-      // se res for null, usuário cancelou
       if (res == null) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Acesso cancelado pelo usuário.')),
+          const SnackBar(content: Text('Erro na page NaoLoagadoPage.')),
         );
         return;
       }
 
-      if (!mounted) return;
+      // Não precisa navegar manualmente: StreamBuilder detectará o authState e mostrará HomePage.
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao autenticar: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao autenticar')));
+    } finally {
+      if (mounted) setState(() => _isSigning = false);
     }
   }
 
@@ -66,22 +78,20 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon(Icons.note_alt_outlined, size: 100, color: Colors.green),
             Image.asset('assets/logo/logo.png', width: 100, height: 100),
-            Text(
-              "ANOTA AÍ",
-              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-            ),
-            Text(
+            const SizedBox(height: 12),
+            const Text("ANOTA AÍ", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text(
               "App de anotações de compras.\nSimples, rápido e fácil!",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             OutlinedButton.icon(
-              onPressed: () => entrarComGoogle(),
-              label: Text("Entrar"),
-              icon: Icon(Icons.login),
+              onPressed: _isSigning ? null : entrarComGoogle,
+              icon: _isSigning ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
+              label: Text(_isSigning ? 'Entrando...' : 'Entrar'),
             ),
           ],
         ),
