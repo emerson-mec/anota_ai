@@ -1,4 +1,3 @@
-import 'package:anota_ai/pages/home_page.dart';
 import 'package:anota_ai/pages/toogle_login_page.dart';
 import 'package:anota_ai/provider/lista_itens_provider.dart';
 import 'package:anota_ai/provider/usuario_provider.dart';
