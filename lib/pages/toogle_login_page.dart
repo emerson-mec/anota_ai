@@ -93,6 +93,7 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
               icon: _isSigning ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
               label: Text(_isSigning ? 'Entrando...' : 'Entrar'),
             ),
+            
           ],
         ),
       ),

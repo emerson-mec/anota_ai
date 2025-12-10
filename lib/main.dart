@@ -26,10 +26,10 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Anota Aí',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 37, 73, 135)),
           useMaterial3: true,
           appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.blueAccent,
+            backgroundColor: Color.fromARGB(255, 44, 56, 75),
             foregroundColor: Colors.white,
           ),
         ),

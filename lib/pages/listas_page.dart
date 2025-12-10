@@ -53,7 +53,7 @@ class _ListasPAGEState extends State<ListasPAGE> {
                       (lista) => ExpansionTile(
                         title: Text(lista.nome),
                         subtitle: Text(
-                          '${lista.itens.length} itens | Prioridade: ${lista.prioridade.traduzir}',
+                          '${lista.itens.length} itens',
                         ),
 
                         // trailing: IconButton(
@@ -69,25 +69,25 @@ class _ListasPAGEState extends State<ListasPAGE> {
                           child: Text('Editar'),
                         ),
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text("PRIORIDADE: "),
-                              Divider(),
-                              SizedBox(
-                                width: 110,
-                                child: SwitchListTile(
-                                  value: lista.prioridade,
-                                  onChanged: (value) async {
-                                    await Provider.of<ListaItensProvider>(
-                                      context,
-                                      listen: false,
-                                    ).mudarPrioridade(lista.id, value);
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   children: [
+                          //     Text("PRIORIDADE: "),
+                          //     Divider(),
+                          //     SizedBox(
+                          //       width: 110,
+                          //       child: SwitchListTile(
+                          //         value: lista.prioridade,
+                          //         onChanged: (value) async {
+                          //           await Provider.of<ListaItensProvider>(
+                          //             context,
+                          //             listen: false,
+                          //           ).mudarPrioridade(lista.id, value);
+                          //         },
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           Wrap(
                             children: [
                               ...lista.itens.map((item) {

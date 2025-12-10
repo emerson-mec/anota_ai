@@ -4,6 +4,7 @@ import 'package:anota_ai/widget/drawer_custom.dart';
 // Firestore removido: usando persistência local (Hive)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +20,24 @@ class _HomePageState extends State<HomePage> {
   late ListaMODEL listaSelecionada;
   final FocusNode _nomeFocusNode = FocusNode();
   bool _isSaving = false;
+  String _appVersion = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      // Exemplo: versão + build number (1.0.0+1)
+      final versao = '${info.version}+${info.buildNumber}';
+      if (mounted) setState(() => _appVersion = versao);
+    } catch (e) {
+      if (mounted) setState(() => _appVersion = 'versão desconhecida');
+    }
+  }
 
   @override
   void dispose() {
@@ -30,12 +49,22 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print("chamou home");
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
-        title: Text('ANOTA AÍ', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+
+              child: Image.asset('assets/logo/logo.png', width: 32, height: 32),
+            ),
+            SizedBox(width: 8),
+            Text('ANOTA AÍ', style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Resetar Lista',
@@ -44,15 +73,66 @@ class _HomePageState extends State<HomePage> {
               _resetarLista();
             },
           ),
+
+          IconButton(
+            tooltip: 'Dúvidas',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text('Dúvidas Frequentes'),
+                    content: SingleChildScrollView(
+                      child: ListBody(
+                        children: <Widget>[
+                          Text(
+                            '1. Como remover um único item da lista de "intensão de compra" ou do "carrinho"?',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'R: Pressione e segure o item que deseja remover até que o item seja removido da lista.',
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            '2. Como editar item ou uma lista?',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'R: Acesse o menu lateral esquerdo e clique em "Gerenciar Listas", onde é possível editar ou excluir listas e itens.',
+                          ),
+                          Divider(),
+                          Text(
+                            "Versão do App: $_appVersion",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text('Fechar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
-      drawer: DrawerCUSTOM(),
+      drawer: DrawerCUSTOM(appVersion: _appVersion),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: FutureBuilder(
-                future: Provider.of<ListaItensProvider>(context).getListasItens(),
+                future: Provider.of<ListaItensProvider>(
+                  context,
+                ).getListasItens(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -89,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                           (l) => l.nome == selectedListaNome,
                           orElse: () => listas.first,
                         );
-        
+
                         listaSelecionada = selectedLista;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +190,7 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: Colors.blue[200]!,
-                                  width: 1,
+                                  width: 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
@@ -161,25 +241,30 @@ class _HomePageState extends State<HomePage> {
                                                 value: lista.nome,
                                                 child: Text(
                                                   lista.nome,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               );
                                             })
                                             .toList(),
                                         onChanged: (value) async {
-                                          if (value != null && value != selectedListaNome) {
+                                          if (value != null &&
+                                              value != selectedListaNome) {
                                             // Encontrar a lista selecionada
                                             final novaLista = listas.firstWhere(
                                               (l) => l.nome == value,
                                               orElse: () => listas.first,
                                             );
-                                            
+
                                             // Chamar mudarPrioridade para marcar a nova lista como prioritária
-                                            await Provider.of<ListaItensProvider>(
-                                              context,
-                                              listen: false,
-                                            ).mudarPrioridade(novaLista.id, true);
-                                            
+                                            await Provider.of<
+                                                  ListaItensProvider
+                                                >(context, listen: false)
+                                                .mudarPrioridade(
+                                                  novaLista.id,
+                                                  true,
+                                                );
+
                                             setState(() {
                                               selectedListaNome = value;
                                               listaSelecionada = novaLista;
@@ -202,7 +287,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-        
+
                             Expanded(
                               child: Column(
                                 children: [
@@ -217,12 +302,11 @@ class _HomePageState extends State<HomePage> {
                                             margin: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: Colors.green[50],
-                                              borderRadius: BorderRadius.circular(
-                                                12,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: Colors.green[200]!,
-                                                width: 1,
+                                                width: 1.5,
                                               ),
                                             ),
                                             child: Column(
@@ -239,18 +323,24 @@ class _HomePageState extends State<HomePage> {
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                           topLeft:
-                                                              Radius.circular(12),
+                                                              Radius.circular(
+                                                                12,
+                                                              ),
                                                           topRight:
-                                                              Radius.circular(12),
+                                                              Radius.circular(
+                                                                12,
+                                                              ),
                                                         ),
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Icon(
                                                         Icons.shopping_cart,
-                                                        color: Colors.green[700],
+                                                        color:
+                                                            Colors.green[700],
                                                         size: 18,
                                                       ),
                                                       const SizedBox(width: 6),
@@ -269,9 +359,8 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 Expanded(
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(
-                                                      8,
-                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.all(8),
                                                     child:
                                                         selectedLista.itens
                                                             .where(
@@ -312,14 +401,20 @@ class _HomePageState extends State<HomePage> {
                                                                             .green[400],
                                                                         borderRadius:
                                                                             BorderRadius.circular(
-                                                                              20,
+                                                                              10,
                                                                             ),
+                                                                        border: BoxBorder.all(
+                                                                          color:
+                                                                              Colors.green[500]!,
+                                                                          width:
+                                                                              1.0,
+                                                                        ),
                                                                         boxShadow: [
                                                                           BoxShadow(
                                                                             color:
                                                                                 Colors.green[300]!,
                                                                             blurRadius:
-                                                                                4,
+                                                                                3,
                                                                             offset: const Offset(
                                                                               0,
                                                                               2,
@@ -341,19 +436,16 @@ class _HomePageState extends State<HomePage> {
                                                                         child: Padding(
                                                                           padding: const EdgeInsets.symmetric(
                                                                             horizontal:
-                                                                                12,
+                                                                                10,
                                                                             vertical:
-                                                                                8,
+                                                                                4,
                                                                           ),
                                                                           child: Text(
                                                                             item.nome,
                                                                             style: const TextStyle(
-                                                                              color:
-                                                                                  Colors.white,
-                                                                              fontWeight:
-                                                                                  FontWeight.w500,
-                                                                              fontSize:
-                                                                                  13,
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.w700,
+                                                                              fontSize: 13,
                                                                             ),
                                                                           ),
                                                                         ),
@@ -384,12 +476,11 @@ class _HomePageState extends State<HomePage> {
                                             margin: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: Colors.yellow[50],
-                                              borderRadius: BorderRadius.circular(
-                                                12,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: Colors.yellow[600]!,
-                                                width: 1,
+                                                width: 1.5,
                                               ),
                                             ),
                                             child: Column(
@@ -402,22 +493,28 @@ class _HomePageState extends State<HomePage> {
                                                         vertical: 8,
                                                       ),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.yellow[100],
+                                                    color: Colors.orange[100],
                                                     borderRadius:
                                                         const BorderRadius.only(
                                                           topLeft:
-                                                              Radius.circular(12),
+                                                              Radius.circular(
+                                                                12,
+                                                              ),
                                                           topRight:
-                                                              Radius.circular(12),
+                                                              Radius.circular(
+                                                                12,
+                                                              ),
                                                         ),
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment.center,
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Icon(
                                                         Icons.favorite,
-                                                        color: Colors.orange[700],
+                                                        color:
+                                                            Colors.orange[700],
                                                         size: 18,
                                                       ),
                                                       const SizedBox(width: 6),
@@ -426,8 +523,8 @@ class _HomePageState extends State<HomePage> {
                                                         style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold,
-                                                          color:
-                                                              Colors.orange[700],
+                                                          color: Colors
+                                                              .orange[700],
                                                           fontSize: 14,
                                                         ),
                                                       ),
@@ -436,9 +533,8 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 Expanded(
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(
-                                                      8,
-                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.all(8),
                                                     child:
                                                         selectedLista.itens
                                                             .where(
@@ -479,8 +575,14 @@ class _HomePageState extends State<HomePage> {
                                                                             .orange[400],
                                                                         borderRadius:
                                                                             BorderRadius.circular(
-                                                                              20,
+                                                                              10,
                                                                             ),
+                                                                        border: BoxBorder.all(
+                                                                          color:
+                                                                              Colors.orange[500]!,
+                                                                          width:
+                                                                              1.0,
+                                                                        ),
                                                                         boxShadow: [
                                                                           BoxShadow(
                                                                             color:
@@ -507,26 +609,20 @@ class _HomePageState extends State<HomePage> {
                                                                             item,
                                                                           );
                                                                         },
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                              20,
-                                                                            ),
+
                                                                         child: Padding(
                                                                           padding: const EdgeInsets.symmetric(
                                                                             horizontal:
-                                                                                12,
+                                                                                9,
                                                                             vertical:
-                                                                                8,
+                                                                                6,
                                                                           ),
                                                                           child: Text(
                                                                             item.nome,
                                                                             style: const TextStyle(
-                                                                              color:
-                                                                                  Colors.white,
-                                                                              fontWeight:
-                                                                                  FontWeight.w500,
-                                                                              fontSize:
-                                                                                  13,
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.w700,
+                                                                              fontSize: 13,
                                                                             ),
                                                                           ),
                                                                         ),
@@ -545,7 +641,7 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                   ),
-        
+
                                   Container(
                                     margin: const EdgeInsets.symmetric(
                                       horizontal: 8,
@@ -555,7 +651,7 @@ class _HomePageState extends State<HomePage> {
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
                                         color: Colors.grey[300]!,
-                                        width: 1,
+                                        width: 1.5,
                                       ),
                                     ),
                                     child: Column(
@@ -566,10 +662,11 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: Colors.grey[100],
-                                            borderRadius: const BorderRadius.only(
-                                              topLeft: Radius.circular(12),
-                                              topRight: Radius.circular(12),
-                                            ),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                                  topLeft: Radius.circular(12),
+                                                  topRight: Radius.circular(12),
+                                                ),
                                           ),
                                           child: Row(
                                             mainAxisAlignment:
@@ -607,7 +704,9 @@ class _HomePageState extends State<HomePage> {
                                                   decoration: BoxDecoration(
                                                     color: Colors.blue[400],
                                                     borderRadius:
-                                                        BorderRadius.circular(20),
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
                                                   ),
                                                   child: const Icon(
                                                     Icons.add,
@@ -622,7 +721,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         Container(
                                           constraints: const BoxConstraints(
-                                            maxHeight: 220,
+                                            maxHeight: 250,
                                           ),
                                           child:
                                               selectedLista.itens
@@ -645,111 +744,106 @@ class _HomePageState extends State<HomePage> {
                                                     textAlign: TextAlign.center,
                                                   ),
                                                 )
-                                              : Padding(
-                                                  padding: const EdgeInsets.all(
-                                                    5,
-                                                  ),
-                                                  child: SingleChildScrollView(
-                                                    child: Wrap(
-                                                      spacing: 4,
-                                                      runSpacing: 8,
-                                                      children: () {
-                                                        final itensDisponiveis =
-                                                            selectedLista.itens
-                                                                .where(
-                                                                  (item) =>
-                                                                      !item
-                                                                          .noCarrinho &&
-                                                                      !item
-                                                                          .intencaoCompra,
-                                                                )
-                                                                .toList();
-                                                        itensDisponiveis.sort(
-                                                          (a, b) => a.nome
-                                                              .toLowerCase()
-                                                              .compareTo(
-                                                                b.nome
-                                                                    .toLowerCase(),
-                                                              ),
-                                                        );
-                                                        return itensDisponiveis.map((
-                                                          item,
-                                                        ) {
-                                                          return Container(
-                                                            decoration: BoxDecoration(
+                                              : SingleChildScrollView(
+                                                  child: Wrap(
+                                                    spacing: 4,
+                                                    runSpacing: 6,
+                                                    children: () {
+                                                      final itensDisponiveis =
+                                                          selectedLista.itens
+                                                              .where(
+                                                                (item) =>
+                                                                    !item
+                                                                        .noCarrinho &&
+                                                                    !item
+                                                                        .intencaoCompra,
+                                                              )
+                                                              .toList();
+                                                      itensDisponiveis.sort(
+                                                        (a, b) => a.nome
+                                                            .toLowerCase()
+                                                            .compareTo(
+                                                              b.nome
+                                                                  .toLowerCase(),
+                                                            ),
+                                                      );
+                                                      return itensDisponiveis.map((
+                                                        item,
+                                                      ) {
+                                                        return Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors
+                                                                .blue[100],
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  10,
+                                                                ),
+                                                            border: Border.all(
                                                               color: Colors
-                                                                  .blue[100],
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    20,
-                                                                  ),
-                                                              border: Border.all(
+                                                                  .blue[300]!,
+                                                              width: 1.5,
+                                                            ),
+                                                            boxShadow: [
+                                                              BoxShadow(
                                                                 color: Colors
-                                                                    .blue[300]!,
-                                                                width: 1,
+                                                                    .blue[100]!,
+                                                                blurRadius: 2,
+                                                                offset:
+                                                                    const Offset(
+                                                                      0,
+                                                                      1,
+                                                                    ),
                                                               ),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors
-                                                                      .blue[100]!,
-                                                                  blurRadius: 2,
-                                                                  offset:
-                                                                      const Offset(
-                                                                        0,
-                                                                        1,
-                                                                      ),
+                                                            ],
+                                                          ),
+                                                          child: InkWell(
+                                                            onTap: () {
+                                                              _moverParaIntencaoCompra(
+                                                                selectedLista,
+                                                                item,
+                                                              );
+                                                            },
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  20,
                                                                 ),
-                                                              ],
-                                                            ),
-                                                            child: InkWell(
-                                                              onTap: () {
-                                                                _moverParaIntencaoCompra(
-                                                                  selectedLista,
-                                                                  item,
-                                                                );
-                                                              },
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    20,
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        10,
+                                                                    vertical: 6,
                                                                   ),
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets.symmetric(
-                                                                      horizontal:
-                                                                          14,
-                                                                      vertical: 7,
+                                                              child: Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  // Icon(
+                                                                  //   Icons.add_shopping_cart,
+                                                                  //   color: Colors.blue[600],
+                                                                  //   size: 16,
+                                                                  // ),
+                                                                  // const SizedBox(width: 6),
+                                                                  Text(
+                                                                    item.nome,
+                                                                    style: TextStyle(
+                                                                      color: Colors
+                                                                          .blue[700],
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                      fontSize:
+                                                                          13,
                                                                     ),
-                                                                child: Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: [
-                                                                    // Icon(
-                                                                    //   Icons.add_shopping_cart,
-                                                                    //   color: Colors.blue[600],
-                                                                    //   size: 16,
-                                                                    // ),
-                                                                    // const SizedBox(width: 6),
-                                                                    Text(
-                                                                      item.nome,
-                                                                      style: TextStyle(
-                                                                        color: Colors
-                                                                            .blue[700],
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .w500,
-                                                                        fontSize:
-                                                                            13,
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
+                                                                  ),
+                                                                ],
                                                               ),
                                                             ),
-                                                          );
-                                                        }).toList();
-                                                      }(),
-                                                    ),
+                                                          ),
+                                                        );
+                                                      }).toList();
+                                                    }(),
                                                   ),
                                                 ),
                                         ),
@@ -1099,7 +1193,7 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => AlertDialog(
         title: const Text('Resetar Itens'),
         content: Text(
-          'Esta ação limpara apenas "intenção de compra" e "item no carrinho"',
+          'Esta ação limpará apenas "intenção de compra" e "item no carrinho".',
         ),
         actions: [
           TextButton(
