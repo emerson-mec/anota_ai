@@ -183,27 +183,27 @@ class _HomePageState extends State<HomePage> {
                               ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Colors.blue[50]!, Colors.blue[100]!],
+                                  colors: [Colors.blue[50]!, const Color.fromARGB(255, 151, 207, 252)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: Colors.blue[200]!,
                                   width: 1.5,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.blue[100]!,
+                                    color: const Color.fromARGB(78, 12, 92, 158),
                                     blurRadius: 8,
-                                    offset: const Offset(0, 4),
+                                    offset: const Offset(0, 5),
                                   ),
                                 ],
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
-                                  vertical: 2,
+                                  vertical: 0,
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -299,7 +299,12 @@ class _HomePageState extends State<HomePage> {
                                         Expanded(
                                           flex: 5,
                                           child: Container(
-                                            margin: const EdgeInsets.all(8),
+                                            margin: const EdgeInsets.only(
+                                              top: 5,
+                                              left: 8,
+                                              right: 4,
+                                              bottom: 8,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: Colors.green[50],
                                               borderRadius:
@@ -360,7 +365,7 @@ class _HomePageState extends State<HomePage> {
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsets.all(8),
+                                                        const EdgeInsets.only(top: 5, left: 0, right: 0, bottom: 3),
                                                     child:
                                                         selectedLista.itens
                                                             .where(
@@ -470,10 +475,16 @@ class _HomePageState extends State<HomePage> {
                                         //     borderRadius: BorderRadius.circular(1),
                                         //   ),
                                         // ),
+                                        
                                         Expanded(
                                           flex: 5,
                                           child: Container(
-                                            margin: const EdgeInsets.all(8),
+                                            margin: const EdgeInsets.only(
+                                              top: 5,
+                                              left: 4,
+                                              right: 8,
+                                              bottom: 8,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: Colors.yellow[50],
                                               borderRadius:
@@ -531,10 +542,11 @@ class _HomePageState extends State<HomePage> {
                                                     ],
                                                   ),
                                                 ),
+                                                
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsets.all(8),
+                                                        const EdgeInsets.only(top: 5, left: 0, right: 0, bottom: 3),
                                                     child:
                                                         selectedLista.itens
                                                             .where(
@@ -684,7 +696,7 @@ class _HomePageState extends State<HomePage> {
                                                   'Itens da lista "$selectedListaNome"',
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.grey[700],
+                                                    color: const Color.fromARGB(255, 129, 129, 129),
                                                     fontSize: 14,
                                                   ),
                                                   textAlign: TextAlign.center,
@@ -702,7 +714,7 @@ class _HomePageState extends State<HomePage> {
                                                     6,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.blue[400],
+                                                    color: Colors.blue[500],
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                           20,
@@ -773,14 +785,14 @@ class _HomePageState extends State<HomePage> {
                                                         return Container(
                                                           decoration: BoxDecoration(
                                                             color: Colors
-                                                                .blue[100],
+                                                                .blue[400],
                                                             borderRadius:
                                                                 BorderRadius.circular(
                                                                   10,
                                                                 ),
                                                             border: Border.all(
                                                               color: Colors
-                                                                  .blue[300]!,
+                                                                  .blue[600]!,
                                                               width: 1.5,
                                                             ),
                                                             boxShadow: [
@@ -828,11 +840,10 @@ class _HomePageState extends State<HomePage> {
                                                                   Text(
                                                                     item.nome,
                                                                     style: TextStyle(
-                                                                      color: Colors
-                                                                          .blue[700],
+                                                                      color:   Colors.white,
                                                                       fontWeight:
                                                                           FontWeight
-                                                                              .w500,
+                                                                              .bold,
                                                                       fontSize:
                                                                           13,
                                                                     ),

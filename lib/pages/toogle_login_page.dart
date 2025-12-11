@@ -25,7 +25,9 @@ class _ToogleGoogleLoginPageState extends State<ToogleGoogleLoginPage> {
 
         if (snapshot.hasError) {
           return Scaffold(
-            body: Center(child: Text('Erro ao verificar autenticação: ${snapshot.error}')),
+            body: Center(
+              child: Text('Erro ao verificar autenticação: ${snapshot.error}'),
+            ),
           );
         }
 
@@ -52,7 +54,10 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
   Future<void> entrarComGoogle() async {
     setState(() => _isSigning = true);
     try {
-      final res = await Provider.of<UsuarioProvider>(context, listen: false).signInComGoogle();
+      final res = await Provider.of<UsuarioProvider>(
+        context,
+        listen: false,
+      ).signInComGoogle();
 
       if (res == null) {
         if (!mounted) return;
@@ -65,7 +70,9 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
       // Não precisa navegar manualmente: StreamBuilder detectará o authState e mostrará HomePage.
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro ao autenticar')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao autenticar')));
     } finally {
       if (mounted) setState(() => _isSigning = false);
     }
@@ -78,9 +85,21 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo/logo.png', width: 100, height: 100),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+
+              child: Image.asset(
+                'assets/logo/logo.png',
+                width: 120,
+                height: 120,
+              ),
+            ),
+
             const SizedBox(height: 12),
-            const Text("ANOTA AÍ", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+            const Text(
+              "ANOTA AÍ",
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 8),
             const Text(
               "App de anotações de compras.\nSimples, rápido e fácil!",
@@ -90,10 +109,18 @@ class _NaoLogadoPageState extends State<NaoLogadoPage> {
             const SizedBox(height: 30),
             OutlinedButton.icon(
               onPressed: _isSigning ? null : entrarComGoogle,
-              icon: _isSigning ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
-              label: Text(_isSigning ? 'Entrando...' : 'Entrar'),
+              icon: _isSigning
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.login_rounded),
+              label: Text(
+                _isSigning ? 'ENTRANDO...' : 'ENTRAR',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
-            
           ],
         ),
       ),
