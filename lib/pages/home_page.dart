@@ -46,11 +46,8 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // int builds = 0;
-
   @override
   Widget build(BuildContext context) {
-    // builds++;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -129,13 +126,6 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Column(
           children: [
-            //PROPAGANDA
-            // Container(
-            //   color: Colors.green,
-            //   height: 50,
-            //   width: double.infinity,
-            //   child: Text("builds: $builds"),
-            // ),
             Expanded(
               child: FutureBuilder(
                 future: Provider.of<ListaItensProvider>(
@@ -366,7 +356,8 @@ class _HomePageState extends State<HomePage> {
                                                       ),
                                                       const SizedBox(width: 6),
                                                       Text(
-                                                        'Item no carrinho',
+                                                        '${selectedLista.itens.where((i) => i.noCarrinho).length} Itens no carrinho ',
+
                                                         style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold,
@@ -388,14 +379,13 @@ class _HomePageState extends State<HomePage> {
                                                           bottom: 3,
                                                         ),
                                                     child:
-                                                        selectedLista.itens
-                                                            .where(
-                                                              (filtro) =>
-                                                                  filtro
-                                                                      .noCarrinho ==
-                                                                  true,
-                                                            )
-                                                            .isEmpty
+                                                        selectedLista.itens.where((
+                                                          filtro,
+                                                        ) {
+                                                          return filtro
+                                                                  .noCarrinho ==
+                                                              true;
+                                                        }).isEmpty
                                                         ? Center(
                                                             child: Text(
                                                               'Nenhum item no carrinho',
@@ -764,7 +754,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         Container(
                                           constraints: const BoxConstraints(
-                                            maxHeight: 250,
+                                            maxHeight: 200,
                                           ),
                                           child:
                                               selectedLista.itens
@@ -1277,7 +1267,3 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
-
-
-
-

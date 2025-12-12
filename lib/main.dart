@@ -1,5 +1,4 @@
 import 'package:anota_ai/pages/home_page.dart';
-import 'package:anota_ai/pages/toogle_login_page.dart';
 import 'package:anota_ai/provider/lista_itens_provider.dart';
 import 'package:anota_ai/provider/usuario_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,7 +34,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         debugShowCheckedModeBanner: false,
-        home: const HomePage(),
+        home:   HomePage(), //TODO alterar para ToggleLoginPage()
       ),
     );
   }

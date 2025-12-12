@@ -2,7 +2,7 @@ import 'package:anota_ai/pages/listas_page.dart';
 import 'package:anota_ai/utils/navegacao_custom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import '../provider/usuario_provider.dart';
 
 class DrawerCUSTOM extends StatelessWidget {
@@ -16,7 +16,9 @@ class DrawerCUSTOM extends StatelessWidget {
         child: ListView(
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(color:   Theme.of(context).appBarTheme.backgroundColor),
+              decoration: BoxDecoration(
+                color: Theme.of(context).appBarTheme.backgroundColor,
+              ),
               child: UsuarioProvider.usuarioAtual() != null
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -27,7 +29,7 @@ class DrawerCUSTOM extends StatelessWidget {
                           height: 70,
 
                           child: ClipRRect(
-                           borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20),
                             child: CachedNetworkImage(
                               imageUrl: UsuarioProvider.usuarioAtual()!.photoURL
                                   .toString(),
@@ -57,32 +59,83 @@ class DrawerCUSTOM extends StatelessWidget {
                       ],
                     )
                   : Center(
-                    child: Text(
+                      child: Text(
                         'ANOTA AÍ!',
-                        style: TextStyle(color: Colors.white, fontSize: 20,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                  ),
+                    ),
             ),
             ListTile(
               leading: const Icon(Icons.list_alt_rounded),
-              title: const Text('Minhas Listas',style: TextStyle(fontWeight: FontWeight.bold),),
-              subtitle: const Text('Gerencie suas listas e itens',style: TextStyle(color: Colors.grey),),
+              title: const Text(
+                'Minhas Listas',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Text(
+                'Gerencie suas listas e itens',
+                style: TextStyle(color: Colors.grey),
+              ),
               onTap: () {
                 NavegacaoCUSTOM.push(context, ListasPAGE());
               },
             ),
-            // ListTile(
-            //   leading: const Icon(Icons.person_add),
-            //   title: const Text('Convidar Colaborador'),
-            //   onTap: () {},
-            // ),
-            // ListTile(
-            //   leading: const Icon(Icons.logout),
-            //   title: const Text('Sair'),
-            //   onTap: () {
-            //     Provider.of<UsuarioProvider>(context, listen: false).signOut();
-            //   },
-            // ),
+            //TODO implementar funcionalidade
+            ListTile(
+              leading: const Icon(Icons.attach_money_sharp),
+              title: const Text(
+                'Contribuir',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Text(
+                'Contribua com o desenvolvedor',
+                style: TextStyle(color: Colors.grey),
+              ),
+              onTap: () {},
+            ),
+            //TODO implementar funcionalidade
+            ListTile(
+              leading: const Icon(Icons.rate_review_outlined),
+              title: const Text(
+                'Avaliar App',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Text(
+                'Deixe sua avalição na loja de Apps',
+                style: TextStyle(color: Colors.grey),
+              ),
+              onTap: () {},
+            ),
+    //TODO implementar funcionalidade
+             ListTile(
+              leading: const Icon(Icons.newspaper_rounded),
+              title: const Text(
+                'Remover Propagandas',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Text(
+                'Remova as propagandas do App',
+                style: TextStyle(color: Colors.grey),
+              ),
+              onTap: () {},
+            ),
+
+            ListTile(
+              leading: Icon(Icons.logout, color: Colors.red[300]),
+              title: Text(
+                'Sair',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[300],
+                ),
+              ),
+              onTap: () {
+                Provider.of<UsuarioProvider>(context, listen: false).signOut();
+              },
+            ),
             Divider(color: const Color.fromARGB(255, 215, 215, 215)),
             Text(
               "Versão do app: $appVersion",
