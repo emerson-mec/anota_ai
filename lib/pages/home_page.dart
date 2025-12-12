@@ -1,7 +1,6 @@
 import 'package:anota_ai/model/lista_model.dart';
 import 'package:anota_ai/provider/lista_itens_provider.dart';
 import 'package:anota_ai/widget/drawer_custom.dart';
-// Firestore removido: usando persistência local (Hive)
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -32,7 +31,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final info = await PackageInfo.fromPlatform();
       // Exemplo: versão + build number (1.0.0+1)
-      final versao = '${info.version}+${info.buildNumber}';
+      final versao = '${info.version}';
       if (mounted) setState(() => _appVersion = versao);
     } catch (e) {
       if (mounted) setState(() => _appVersion = 'versão desconhecida');
@@ -47,8 +46,11 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  // int builds = 0;
+
   @override
   Widget build(BuildContext context) {
+    // builds++;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -58,7 +60,6 @@ class _HomePageState extends State<HomePage> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-
               child: Image.asset('assets/logo/logo.png', width: 32, height: 32),
             ),
             SizedBox(width: 8),
@@ -128,6 +129,13 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: Column(
           children: [
+            //PROPAGANDA
+            // Container(
+            //   color: Colors.green,
+            //   height: 50,
+            //   width: double.infinity,
+            //   child: Text("builds: $builds"),
+            // ),
             Expanded(
               child: FutureBuilder(
                 future: Provider.of<ListaItensProvider>(
@@ -183,7 +191,10 @@ class _HomePageState extends State<HomePage> {
                               ),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Colors.blue[50]!, const Color.fromARGB(255, 151, 207, 252)],
+                                  colors: [
+                                    Colors.blue[50]!,
+                                    const Color.fromARGB(255, 151, 207, 252),
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -194,7 +205,12 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color.fromARGB(78, 12, 92, 158),
+                                    color: const Color.fromARGB(
+                                      78,
+                                      12,
+                                      92,
+                                      158,
+                                    ),
                                     blurRadius: 8,
                                     offset: const Offset(0, 5),
                                   ),
@@ -365,7 +381,12 @@ class _HomePageState extends State<HomePage> {
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsets.only(top: 5, left: 0, right: 0, bottom: 3),
+                                                        const EdgeInsets.only(
+                                                          top: 5,
+                                                          left: 0,
+                                                          right: 0,
+                                                          bottom: 3,
+                                                        ),
                                                     child:
                                                         selectedLista.itens
                                                             .where(
@@ -466,6 +487,7 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                         ),
+
                                         // Container(
                                         //   width: 2,
                                         //   height: 60,
@@ -475,7 +497,6 @@ class _HomePageState extends State<HomePage> {
                                         //     borderRadius: BorderRadius.circular(1),
                                         //   ),
                                         // ),
-                                        
                                         Expanded(
                                           flex: 5,
                                           child: Container(
@@ -542,11 +563,16 @@ class _HomePageState extends State<HomePage> {
                                                     ],
                                                   ),
                                                 ),
-                                                
+
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsets.only(top: 5, left: 0, right: 0, bottom: 3),
+                                                        const EdgeInsets.only(
+                                                          top: 5,
+                                                          left: 0,
+                                                          right: 0,
+                                                          bottom: 3,
+                                                        ),
                                                     child:
                                                         selectedLista.itens
                                                             .where(
@@ -662,7 +688,7 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.grey[50],
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: Colors.grey[300]!,
+                                        color: Colors.grey[400]!,
                                         width: 1.5,
                                       ),
                                     ),
@@ -670,7 +696,7 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Container(
                                           padding: const EdgeInsets.symmetric(
-                                            vertical: 5,
+                                            vertical: 6,
                                           ),
                                           decoration: BoxDecoration(
                                             color: Colors.grey[100],
@@ -696,7 +722,12 @@ class _HomePageState extends State<HomePage> {
                                                   'Itens da lista "$selectedListaNome"',
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: const Color.fromARGB(255, 129, 129, 129),
+                                                    color: const Color.fromARGB(
+                                                      255,
+                                                      129,
+                                                      129,
+                                                      129,
+                                                    ),
                                                     fontSize: 14,
                                                   ),
                                                   textAlign: TextAlign.center,
@@ -840,7 +871,8 @@ class _HomePageState extends State<HomePage> {
                                                                   Text(
                                                                     item.nome,
                                                                     style: TextStyle(
-                                                                      color:   Colors.white,
+                                                                      color: Colors
+                                                                          .white,
                                                                       fontWeight:
                                                                           FontWeight
                                                                               .bold,
@@ -1245,3 +1277,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
+
+
+
+

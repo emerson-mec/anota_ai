@@ -2,7 +2,6 @@ import 'package:anota_ai/pages/listas_page.dart';
 import 'package:anota_ai/utils/navegacao_custom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../provider/usuario_provider.dart';
 
@@ -57,14 +56,17 @@ class DrawerCUSTOM extends StatelessWidget {
                         ),
                       ],
                     )
-                  : Text(
-                      'ANOTA AÍ',
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                    ),
+                  : Center(
+                    child: Text(
+                        'ANOTA AÍ!',
+                        style: TextStyle(color: Colors.white, fontSize: 20,fontWeight: FontWeight.bold),
+                      ),
+                  ),
             ),
             ListTile(
               leading: const Icon(Icons.list_alt_rounded),
-              title: const Text('Gerenciar Listas'),
+              title: const Text('Minhas Listas',style: TextStyle(fontWeight: FontWeight.bold),),
+              subtitle: const Text('Gerencie suas listas e itens',style: TextStyle(color: Colors.grey),),
               onTap: () {
                 NavegacaoCUSTOM.push(context, ListasPAGE());
               },
@@ -74,13 +76,13 @@ class DrawerCUSTOM extends StatelessWidget {
             //   title: const Text('Convidar Colaborador'),
             //   onTap: () {},
             // ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Sair'),
-              onTap: () {
-                Provider.of<UsuarioProvider>(context, listen: false).signOut();
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.logout),
+            //   title: const Text('Sair'),
+            //   onTap: () {
+            //     Provider.of<UsuarioProvider>(context, listen: false).signOut();
+            //   },
+            // ),
             Divider(color: const Color.fromARGB(255, 215, 215, 215)),
             Text(
               "Versão do app: $appVersion",
