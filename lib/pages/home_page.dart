@@ -53,14 +53,14 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 0,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset('assets/logo/logo.png', width: 32, height: 32),
             ),
             SizedBox(width: 8),
-            Text('ANOTA AÍ', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('APP ANOTA AÍ', style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: Text('Dúvidas Frequentes'),
+                    title: Text('Tirando Dúvidas'),
                     content: SingleChildScrollView(
                       child: ListBody(
                         children: <Widget>[
@@ -89,15 +89,15 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'R: Pressione e segure o item que deseja remover até que o item seja removido da lista.',
+                            'R: Pressione por 2 segundos sobre o item que deseja remover até que o item seja removido.',
                           ),
                           SizedBox(height: 10),
                           Text(
-                            '2. Como editar item ou uma lista?',
+                            '2. Como editar o nome de um item?',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'R: Acesse o menu lateral esquerdo e clique em "Gerenciar Listas", onde é possível editar ou excluir listas e itens.',
+                            'R: Segure por 2 segundos no item desejado, dentro de "itens da lista" para editar o nome do item.',
                           ),
                           Divider(),
                           Text(
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      drawer: DrawerCUSTOM(appVersion: _appVersion),
+      // drawer: DrawerCUSTOM(appVersion: _appVersion),
       body: SafeArea(
         child: Column(
           children: [
@@ -288,6 +288,16 @@ class _HomePageState extends State<HomePage> {
                                         color: Colors.blue[700],
                                       ),
                                       tooltip: 'Criar nova lista',
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        _updateListBottomSheet(selectedLista);
+                                      },
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: Colors.blue[700],
+                                      ),
+                                      tooltip: 'Editar noda da lista',
                                     ),
                                   ],
                                 ),
@@ -685,11 +695,12 @@ class _HomePageState extends State<HomePage> {
                                     child: Column(
                                       children: [
                                         Container(
+
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 6,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.grey[100],
+                                            color: Colors.grey[300],
                                             borderRadius:
                                                 const BorderRadius.only(
                                                   topLeft: Radius.circular(12),
@@ -701,12 +712,7 @@ class _HomePageState extends State<HomePage> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               SizedBox(width: 15),
-                                              Icon(
-                                                Icons.checklist,
-                                                color: Colors.grey[700],
-                                                size: 18,
-                                              ),
-                                              const SizedBox(width: 8),
+                                          
                                               Expanded(
                                                 child: Text(
                                                   'Itens da lista "$selectedListaNome"',
@@ -731,20 +737,10 @@ class _HomePageState extends State<HomePage> {
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                                 child: Container(
-                                                  padding: const EdgeInsets.all(
-                                                    6,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.blue[500],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          20,
-                                                        ),
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.add,
-                                                    color: Colors.white,
-                                                    size: 16,
+                                                  child: Icon(
+                                                    Icons.add_circle,
+                                                    size: 27,
+                                                    color: Colors.blue[700],
                                                   ),
                                                 ),
                                               ),
@@ -832,6 +828,12 @@ class _HomePageState extends State<HomePage> {
                                                           child: InkWell(
                                                             onTap: () {
                                                               _moverParaIntencaoCompra(
+                                                                selectedLista,
+                                                                item,
+                                                              );
+                                                            },
+                                                            onLongPress: () {
+                                                              _updateItemBottomSheet(
                                                                 selectedLista,
                                                                 item,
                                                               );
@@ -1122,6 +1124,272 @@ class _HomePageState extends State<HomePage> {
                           ? null
                           : () => Navigator.of(ctx).pop(),
                       child: const Text('Cancelar'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _updateListBottomSheet(ListaMODEL lista) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) {
+        // Solicita o foco após o build
+        Future.delayed(const Duration(milliseconds: 70), () {
+          _nomeFocusNode.requestFocus();
+        });
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  initialValue: lista.nome,
+                  onChanged: (value) {
+                    _nomeListaController.text = value;
+                  },
+                  focusNode: _nomeFocusNode,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    label: Text("Novo nome da lista"),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Informe o nome da lista';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isSaving
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
+
+                                setState(() => _isSaving = true);
+                                try {
+                                  lista.nome = _nomeListaController.text;
+                                  await Provider.of<ListaItensProvider>(
+                                    context,
+                                    listen: false,
+                                  ).updateLista(lista);
+
+                                  if (mounted) {
+                                    Navigator.of(ctx).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Lista alterada com sucesso',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao atualizar lista: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _isSaving = false);
+                                  }
+                                }
+                              },
+                        child: const Text('Salvar'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: _isSaving
+                          ? null
+                          : () => Navigator.of(ctx).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _excluirLista(context, lista);
+                      },
+                      child: Text(
+                        'Excluir',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<dynamic> _excluirLista(BuildContext context, ListaMODEL lista) {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirmar exclusão'),
+        content: Text(
+          'Tem certeza que deseja excluir a lista "${lista.nome}"?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              try {
+                await Provider.of<ListaItensProvider>(
+                  context,
+                  listen: false,
+                ).deleteLista(lista.id);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lista excluída com sucesso')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao excluir lista: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateItemBottomSheet(ListaMODEL lista, ItemMODEL item) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) {
+        // Solicita o foco após o build
+        Future.delayed(const Duration(milliseconds: 70), () {
+          _nomeFocusNode.requestFocus();
+        });
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 16,
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  initialValue: item.nome,
+                  onChanged: (value) {
+                    _nomeItemController.text = value;
+                  },
+                  focusNode: _nomeFocusNode,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    label: Text("Novo nome"),
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Informe o nome do item';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isSaving
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
+                                try {
+                                  // setState(() => _isSaving = true);
+                                  item.nome = _nomeItemController.text;
+
+                                  // print(lista.nome);
+                                  // print(item.nome);
+                                  await Provider.of<ListaItensProvider>(
+                                    context,
+                                    listen: false,
+                                  ).updateItem(lista, item);
+
+                                  if (mounted) {
+                                    Navigator.of(ctx).pop();
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Erro ao atualizar item: $e',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _isSaving = false);
+                                  }
+                                }
+                              },
+                        child: const Text('Salvar'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: _isSaving
+                          ? null
+                          : () => Navigator.of(ctx).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await Provider.of<ListaItensProvider>(
+                          context,
+                          listen: false,
+                        ).deletarItem(lista, item);
+
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Excluir',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ],
                 ),
