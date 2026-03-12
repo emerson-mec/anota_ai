@@ -72,6 +72,215 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
     );
   }
 
+  void _editarCompra(CompraModel compra) {
+    _descricaoController.text = compra.descricao;
+    _valorController.text = compra.valor.toString();
+    _dataSelecionada = compra.data;
+    _categoriaSelecionada = compra.categoria;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Editar Compra'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _descricaoController,
+                      decoration: InputDecoration(
+                        labelText: 'Descrição',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _valorController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Valor',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _categoriaSelecionada,
+                      items: _categorias
+                          .map(
+                            (cat) =>
+                                DropdownMenuItem(value: cat, child: Text(cat)),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _categoriaSelecionada = value ?? 'Alimentação';
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Categoria',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () async {
+                        final dataSelecionada = await showDatePicker(
+                          context: context,
+                          initialDate: _dataSelecionada,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime.now(),
+                        );
+                        if (dataSelecionada != null) {
+                          setState(() {
+                            _dataSelecionada = dataSelecionada;
+                          });
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.green[700],
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              _dataSelecionada.diaMesAno(),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _descricaoController.clear();
+                    _valorController.clear();
+                    _dataSelecionada = DateTime.now();
+                    _categoriaSelecionada = 'Alimentação';
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_descricaoController.text.isEmpty ||
+                        _valorController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Preencha todos os campos'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final valor = double.tryParse(_valorController.text);
+                    if (valor == null || valor <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Valor deve ser maior que zero'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final compraAtualizada = CompraModel(
+                      id: compra.id,
+                      data: _dataSelecionada,
+                      descricao: _descricaoController.text,
+                      valor: valor,
+                      categoria: _categoriaSelecionada,
+                    );
+
+                    context.read<ListaItensProvider>().atualizarCompra(
+                      compraAtualizada,
+                    );
+
+                    _descricaoController.clear();
+                    _valorController.clear();
+                    _dataSelecionada = DateTime.now();
+                    _categoriaSelecionada = 'Alimentação';
+
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Compra atualizada com sucesso!'),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                  ),
+                  child: const Text(
+                    'Salvar',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _excluirCompra(CompraModel compra) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Excluir Compra'),
+          content: const Text('Tem certeza que deseja excluir esta compra?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.read<ListaItensProvider>().deletarCompra(compra.id);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Compra excluída com sucesso!')),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text(
+                'Excluir',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -357,8 +566,8 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
         .reduce((a, b) => a > b ? a : b);
 
     return Container(
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      height: 280,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -409,13 +618,13 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                 getTitlesWidget: (value, meta) {
                   return Text(
                     'R\$ ${value.toInt()}',
-                    style: const TextStyle(fontSize: 10),
+                    style: const TextStyle(fontSize: 7),
                   );
                 },
               ),
             ),
           ),
-          gridData: const FlGridData(show: false),
+          // gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
           barGroups: List.generate(mesesOrdenados.length, (index) {
             final valor = mesesOrdenados[index].value;
@@ -577,7 +786,6 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                   'Compras recentes',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-          
               ],
             ),
             const SizedBox(height: 12),
@@ -655,6 +863,44 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                           ),
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (String value) {
+                            if (value == 'editar') {
+                              _editarCompra(compra);
+                            } else if (value == 'excluir') {
+                              _excluirCompra(compra);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => [
+                            const PopupMenuItem<String>(
+                              value: 'editar',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit, size: 18),
+                                  SizedBox(width: 8),
+                                  Text('Editar'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'excluir',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete,
+                                    size: 18,
+                                    color: Colors.red,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Excluir',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
