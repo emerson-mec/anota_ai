@@ -579,7 +579,9 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
           maxY: maxValor,
           barTouchData: BarTouchData(enabled: true),
           titlesData: FlTitlesData(
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             show: true,
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -617,8 +619,8 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   return Text(
-                    'R\$ ${value.toInt()}',
-                    style: const TextStyle(fontSize: 7),
+                    '${value.toInt()}',
+                    style: const TextStyle(fontSize: 9, color: Colors.grey),
                   );
                 },
               ),
