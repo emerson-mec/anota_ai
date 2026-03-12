@@ -7,7 +7,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 
 class HistoricoComprasPage extends StatefulWidget {
-  const HistoricoComprasPage({Key? key}) : super(key: key);
+  const HistoricoComprasPage({Key? key})
+    : super(key: key);
 
   @override
   State<HistoricoComprasPage> createState() => _HistoricoComprasPageState();
