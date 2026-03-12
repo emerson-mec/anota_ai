@@ -49,6 +49,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerCUSTOM(appVersion: _appVersion),
       appBar: AppBar(
         centerTitle: true,
         elevation: 0,
@@ -122,7 +123,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      // drawer: DrawerCUSTOM(appVersion: _appVersion),
+      
       body: SafeArea(
         child: Column(
           children: [

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:anota_ai/model/lista_model.dart';
+import 'package:anota_ai/model/compra_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -8,6 +9,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 class ListaItensProvider extends ChangeNotifier {
   final List<ListaMODEL> _listaItens = [];
   late final Box _box;
+  
+  final List<CompraModel> _historicoCompras = [];
+  late final Box _boxHistorico;
 
   ListaItensProvider() {
     _init();
@@ -19,6 +23,13 @@ class ListaItensProvider extends ChangeNotifier {
     }
     _box = Hive.box('anota_ai_listas');
     _loadFromBox();
+    
+    // Inicializar box de histórico
+    if (!Hive.isBoxOpen('historico_compras')) {
+      await Hive.openBox('historico_compras');
+    }
+    _boxHistorico = Hive.box('historico_compras');
+    _loadHistoricoFromBox();
   }
 
   void _loadFromBox() {
@@ -33,6 +44,23 @@ class ListaItensProvider extends ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  void _loadHistoricoFromBox() {
+    _historicoCompras.clear();
+    for (var key in _boxHistorico.keys) {
+      final value = _boxHistorico.get(key);
+      if (value is String) {
+        _historicoCompras.add(CompraModel.fromJsonString(value));
+      }
+    }
+    // Ordenar por data (mais recentes primeiro)
+    _historicoCompras.sort((a, b) => b.data.compareTo(a.data));
+    notifyListeners();
+  }
+
+  Future<void> _saveCompra(CompraModel compra) async {
+    await _boxHistorico.put(compra.id, compra.toJsonString());
   }
 
   List<ListaMODEL> get listaItens => List.unmodifiable(_listaItens);
@@ -152,6 +180,64 @@ class ListaItensProvider extends ChangeNotifier {
         await _saveLista(_listaItens[listaIndex]);
       }
     }
+    notifyListeners();
+  }
+
+  // ==================== HISTÓRICO DE COMPRAS ====================
+
+  List<CompraModel> get historicoCompras => List.unmodifiable(_historicoCompras);
+
+  Future<void> atualizarHistoricoCompras(CompraModel compra) async {
+    final id = compra.id.isEmpty ? DateTime.now().millisecondsSinceEpoch.toString() : compra.id;
+    final novaCompra = compra.copyWith(id: id);
+    _historicoCompras.add(novaCompra);
+    _historicoCompras.sort((a, b) => b.data.compareTo(a.data));
+    await _saveCompra(novaCompra);
+    notifyListeners();
+  }
+
+  List<CompraModel> obterHistoricoCompras({int limite = 0}) {
+    if (limite <= 0) return historicoCompras;
+    return historicoCompras.take(limite).toList();
+  }
+
+  List<CompraModel> obterComprasRecentes({int quantidade = 5}) {
+    return historicoCompras.take(quantidade).toList();
+  }
+
+  Map<String, double> calcularTotalPorMes() {
+    final meses = <String, double>{};
+    for (var compra in _historicoCompras) {
+      final mesAno = '${compra.data.month.toString().padLeft(2, '0')}/${compra.data.year}';
+      meses[mesAno] = (meses[mesAno] ?? 0.0) + compra.valor;
+    }
+    return meses;
+  }
+
+  Map<String, List<CompraModel>> obterMesesComDados() {
+    final mesesAgrupados = <String, List<CompraModel>>{};
+    for (var compra in _historicoCompras) {
+      final mesAno = '${compra.data.month.toString().padLeft(2, '0')}/${compra.data.year}';
+      if (!mesesAgrupados.containsKey(mesAno)) {
+        mesesAgrupados[mesAno] = [];
+      }
+      mesesAgrupados[mesAno]!.add(compra);
+    }
+    return mesesAgrupados;
+  }
+
+  Future<void> deletarCompra(String id) async {
+    await _boxHistorico.delete(id);
+    _historicoCompras.removeWhere((c) => c.id == id);
+    notifyListeners();
+  }
+
+  Future<void> atualizarCompra(CompraModel compra) async {
+    final idx = _historicoCompras.indexWhere((c) => c.id == compra.id);
+    if (idx == -1) return;
+    _historicoCompras[idx] = compra;
+    _historicoCompras.sort((a, b) => b.data.compareTo(a.data));
+    await _saveCompra(compra);
     notifyListeners();
   }
 }

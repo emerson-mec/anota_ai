@@ -1,4 +1,5 @@
 import 'package:anota_ai/pages/listas_page.dart';
+import 'package:anota_ai/pages/historico_compras_page.dart';
 import 'package:anota_ai/utils/navegacao_custom.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -68,18 +69,32 @@ class DrawerCUSTOM extends StatelessWidget {
                       ),
                     ),
             ),
+            // ListTile(
+            //   leading: const Icon(Icons.list_alt_rounded),
+            //   title: const Text(
+            //     'Minhas Listas',
+            //     style: TextStyle(fontWeight: FontWeight.bold),
+            //   ),
+            //   subtitle: const Text(
+            //     'Gerencie suas listas e itens',
+            //     style: TextStyle(color: Colors.grey),
+            //   ),
+            //   onTap: () {
+            //     NavegacaoCUSTOM.push(context, ListasPAGE());
+            //   },
+            // ),
             ListTile(
-              leading: const Icon(Icons.list_alt_rounded),
+              leading: const Icon(Icons.receipt),
               title: const Text(
-                'Minhas Listas',
+                'Histórico de Compras',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: const Text(
-                'Gerencie suas listas e itens',
+                'Seu controle de gastos mensal',
                 style: TextStyle(color: Colors.grey),
               ),
               onTap: () {
-                NavegacaoCUSTOM.push(context, ListasPAGE());
+                NavegacaoCUSTOM.push(context, const HistoricoComprasPage());
               },
             ),
             //TODO implementar funcionalidade
