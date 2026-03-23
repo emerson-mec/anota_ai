@@ -201,7 +201,7 @@ class ListaItensProvider extends ChangeNotifier {
     return historicoCompras.take(limite).toList();
   }
 
-  List<CompraModel> obterComprasRecentes({int quantidade = 5}) {
+  List<CompraModel> obterComprasRecentes({int quantidade = 30}) {
     return historicoCompras.take(quantidade).toList();
   }
 

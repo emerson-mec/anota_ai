@@ -7,8 +7,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 
 class HistoricoComprasPage extends StatefulWidget {
-  const HistoricoComprasPage({Key? key})
-    : super(key: key);
+  const HistoricoComprasPage({Key? key}) : super(key: key);
 
   @override
   State<HistoricoComprasPage> createState() => _HistoricoComprasPageState();
@@ -18,15 +17,16 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   final _descricaoController = TextEditingController();
   final _valorController = TextEditingController();
   DateTime _dataSelecionada = DateTime.now();
-  String _categoriaSelecionada = 'Alimentação';
+  String _categoriaSelecionada = 'Mercado';
   bool _visualizarAnual = false;
 
   final List<String> _categorias = [
-    'Alimentação',
+    'Mercado',
+    'Lanche',
     'Transporte',
     'Saúde',
     'Educação',
-    'Diversão',
+    'Lazer',
     'Outros',
   ];
 
@@ -66,7 +66,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
     _descricaoController.clear();
     _valorController.clear();
     _dataSelecionada = DateTime.now();
-    _categoriaSelecionada = 'Alimentação';
+    _categoriaSelecionada = 'Mercado';
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Compra adicionada com sucesso!')),
@@ -123,7 +123,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                           .toList(),
                       onChanged: (value) {
                         setState(() {
-                          _categoriaSelecionada = value ?? 'Alimentação';
+                          _categoriaSelecionada = value ?? 'Mercado';
                         });
                       },
                       decoration: InputDecoration(
@@ -182,7 +182,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                     _descricaoController.clear();
                     _valorController.clear();
                     _dataSelecionada = DateTime.now();
-                    _categoriaSelecionada = 'Alimentação';
+                    _categoriaSelecionada = 'Mercado';
                   },
                   child: const Text('Cancelar'),
                 ),
@@ -223,7 +223,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                     _descricaoController.clear();
                     _valorController.clear();
                     _dataSelecionada = DateTime.now();
-                    _categoriaSelecionada = 'Alimentação';
+                    _categoriaSelecionada = 'Mercado';
 
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -326,8 +326,8 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.add_circle, color: Colors.green[700]),
-              const SizedBox(width: 8),
+              //Icon(Icons.add_circle, color: Colors.green[700]),
+              // const SizedBox(width: 8),
               Text(
                 'NOVA COMPRA',
                 style: TextStyle(
@@ -379,7 +379,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                 .toList(),
             onChanged: (value) {
               setState(() {
-                _categoriaSelecionada = value ?? 'Alimentação';
+                _categoriaSelecionada = value ?? 'Mercado';
               });
             },
             decoration: InputDecoration(
@@ -627,7 +627,10 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
               ),
             ),
           ),
-          // gridData: const FlGridData(show: false),
+          gridData: const FlGridData(
+            drawVerticalLine: false,
+            drawHorizontalLine: true,
+          ),
           borderData: FlBorderData(show: false),
           barGroups: List.generate(mesesOrdenados.length, (index) {
             final valor = mesesOrdenados[index].value;
@@ -720,9 +723,21 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
           barTouchData: BarTouchData(enabled: true),
           titlesData: FlTitlesData(
             show: true,
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    '${value.toInt()}',
+                    style: const TextStyle(fontSize: 9, color: Colors.blueGrey),
+                  );
+                },
+              ),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
+
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index < 0 || index >= anosOrdenados.length) {
@@ -735,9 +750,11 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                 },
               ),
             ),
+            topTitles: AxisTitles(drawBelowEverything: false),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
-                showTitles: true,
+                showTitles: false,
+
                 getTitlesWidget: (value, meta) {
                   return Text(
                     'R\$ ${value.toInt()}',
@@ -747,8 +764,10 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
               ),
             ),
           ),
-          gridData: const FlGridData(show: false),
+          gridData: const FlGridData(show: true, drawVerticalLine: false),
+
           borderData: FlBorderData(show: false),
+
           barGroups: List.generate(anosOrdenados.length, (index) {
             final ano = anosOrdenados[index].key;
             final valor = anosOrdenados[index].value;
@@ -760,7 +779,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                 BarChartRodData(
                   toY: valor,
                   color: ehAnoAtual ? Colors.blue : Colors.green[400],
-                  width: 16,
+                  width: 20,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(4),
                     topRight: Radius.circular(4),
@@ -777,7 +796,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   Widget _buildComprasRecentesSection() {
     return Consumer<ListaItensProvider>(
       builder: (context, provider, _) {
-        final comprasRecentes = provider.obterComprasRecentes();
+        final comprasRecentes = provider.obterComprasRecentes(quantidade: 50);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
