@@ -19,6 +19,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   DateTime _dataSelecionada = DateTime.now();
   String _categoriaSelecionada = 'Mercado';
   bool _visualizarAnual = false;
+  String _categoriaFiltroRecentes = 'Todas';
 
   final List<String> _categorias = [
     'Mercado',
@@ -796,7 +797,13 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   Widget _buildComprasRecentesSection() {
     return Consumer<ListaItensProvider>(
       builder: (context, provider, _) {
-        final comprasRecentes = provider.obterComprasRecentes(quantidade: 50);
+        final comprasRecentes = provider.obterComprasRecentes(
+          quantidade: 50,
+          categoria:
+              _categoriaFiltroRecentes == 'Todas' ? null : _categoriaFiltroRecentes,
+        );
+
+        final categoriasFiltro = ['Todas', ..._categorias];
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -809,6 +816,29 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: _categoriaFiltroRecentes,
+              items: categoriasFiltro
+                  .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _categoriaFiltroRecentes = value ?? 'Todas';
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Filtrar por categoria',
+                prefixIcon: const Icon(Icons.filter_list, size: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
 

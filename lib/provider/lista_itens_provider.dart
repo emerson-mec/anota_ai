@@ -201,8 +201,15 @@ class ListaItensProvider extends ChangeNotifier {
     return historicoCompras.take(limite).toList();
   }
 
-  List<CompraModel> obterComprasRecentes({int quantidade = 30}) {
-    return historicoCompras.take(quantidade).toList();
+  List<CompraModel> obterComprasRecentes({
+    int quantidade = 30,
+    String? categoria,
+  }) {
+    var resultado = historicoCompras;
+    if (categoria != null && categoria.isNotEmpty && categoria != 'Todas') {
+      resultado = resultado.where((c) => c.categoria == categoria).toList();
+    }
+    return resultado.take(quantidade).toList();
   }
 
   Map<String, double> calcularTotalPorMes() {
