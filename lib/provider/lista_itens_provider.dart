@@ -212,10 +212,17 @@ class ListaItensProvider extends ChangeNotifier {
     return resultado.take(quantidade).toList();
   }
 
-  Map<String, double> calcularTotalPorMes() {
+  Map<String, double> calcularTotalPorMes({String? categoria}) {
     final meses = <String, double>{};
     for (var compra in _historicoCompras) {
-      final mesAno = '${compra.data.month.toString().padLeft(2, '0')}/${compra.data.year}';
+      if (categoria != null &&
+          categoria.isNotEmpty &&
+          categoria != 'Todas' &&
+          compra.categoria != categoria) {
+        continue;
+      }
+      final mesAno =
+          '${compra.data.month.toString().padLeft(2, '0')}/${compra.data.year}';
       meses[mesAno] = (meses[mesAno] ?? 0.0) + compra.valor;
     }
     return meses;

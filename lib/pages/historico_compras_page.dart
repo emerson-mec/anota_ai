@@ -20,6 +20,7 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   String _categoriaSelecionada = 'Mercado';
   bool _visualizarAnual = false;
   String _categoriaFiltroRecentes = 'Todas';
+  String _categoriaFiltroEvolucao = 'Todas';
 
   final List<String> _categorias = [
     'Mercado',
@@ -474,12 +475,42 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
           );
         }
 
+        final categoriasFiltroEvolucao = ['Todas', ..._categorias];
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            
             const Text(
               'Evolução mensal',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text('Filtrar por categoria:',style: TextStyle(color: Colors.grey),),
+            DropdownButtonFormField<String>(
+              value: _categoriaFiltroEvolucao,
+              items: categoriasFiltroEvolucao
+                  .map(
+                    (cat) =>
+                        DropdownMenuItem(value: cat, child: Text(cat)),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _categoriaFiltroEvolucao = value ?? 'Todas';
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Filtrar por categoria',
+                prefixIcon: const Icon(Icons.filter_list, size: 20),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
 
@@ -521,7 +552,10 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   }
 
   Widget _buildGraficoMensal(ListaItensProvider provider) {
-    final totalPorMes = provider.calcularTotalPorMes();
+    final totalPorMes = provider.calcularTotalPorMes(
+      categoria:
+          _categoriaFiltroEvolucao == 'Todas' ? null : _categoriaFiltroEvolucao,
+    );
 
     if (totalPorMes.isEmpty) {
       return const SizedBox.shrink();
@@ -664,7 +698,10 @@ class _HistoricoComprasPageState extends State<HistoricoComprasPage> {
   }
 
   Widget _buildGraficoAnual(ListaItensProvider provider) {
-    final totalPorMes = provider.calcularTotalPorMes();
+    final totalPorMes = provider.calcularTotalPorMes(
+      categoria:
+          _categoriaFiltroEvolucao == 'Todas' ? null : _categoriaFiltroEvolucao,
+    );
 
     if (totalPorMes.isEmpty) {
       return const SizedBox.shrink();
